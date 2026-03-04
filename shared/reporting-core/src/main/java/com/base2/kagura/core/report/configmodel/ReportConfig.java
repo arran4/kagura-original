@@ -1,27 +1,26 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.configmodel;
 
 import com.base2.kagura.core.report.configmodel.parts.ColumnDef;
-import com.base2.kagura.core.report.parameterTypes.ParamConfig;
 import com.base2.kagura.core.report.connectors.ReportConnector;
+import com.base2.kagura.core.report.parameterTypes.ParamConfig;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.util.List;
 import java.util.Map;
 
@@ -34,15 +33,12 @@ import java.util.Map;
  * Date: 24/07/13
  * Time: 4:46 PM
  */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = JDBCReportConfig.class, name = "JDBC"),
-        @JsonSubTypes.Type(value = JNDIReportConfig.class, name = "JNDI"),
-        @JsonSubTypes.Type(value = GroovyReportConfig.class, name = "Groovy"),
-        @JsonSubTypes.Type(value = FakeReportConfig.class, name = "Fake")
+    @JsonSubTypes.Type(value = JDBCReportConfig.class, name = "JDBC"),
+    @JsonSubTypes.Type(value = JNDIReportConfig.class, name = "JNDI"),
+    @JsonSubTypes.Type(value = GroovyReportConfig.class, name = "Groovy"),
+    @JsonSubTypes.Type(value = FakeReportConfig.class, name = "Fake")
 })
 public abstract class ReportConfig {
     String reportId;
@@ -64,7 +60,7 @@ public abstract class ReportConfig {
      * @return
      */
     @JsonIgnore
-    abstract public ReportConnector getReportConnector();
+    public abstract ReportConnector getReportConnector();
 
     /**
      * @see #getParamConfig()
@@ -142,8 +138,7 @@ public abstract class ReportConfig {
      */
     public void prepareParameters(Map<String, Object> extra) {
         if (paramConfig == null) return;
-        for (ParamConfig param : paramConfig)
-        {
+        for (ParamConfig param : paramConfig) {
             param.prepareParameter(extra);
         }
     }

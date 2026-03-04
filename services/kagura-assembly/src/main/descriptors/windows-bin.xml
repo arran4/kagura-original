@@ -28,7 +28,7 @@
 
         <!-- Karaf runtime -->
         <fileSet>
-            <directory>target/dependencies/windows/apache-karaf-${karaf.version}</directory>
+            <directory>target/dependencies/windows/apache-karaf-4.4.6</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>**/demos/**</exclude>
@@ -51,10 +51,10 @@
 
         <!-- Copy over bin/* separately to get the correct file mode -->
         <fileSet>
-            <directory>target/dependencies/windows/apache-karaf-${karaf.version}</directory>
+            <directory>target/dependencies/windows/apache-karaf-4.4.6</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>bin/admin.bat</include>
+
                 <include>bin/karaf.bat</include>
                 <include>bin/start.bat</include>
                 <include>bin/stop.bat</include>
@@ -72,7 +72,7 @@
 
     <files>
         <file>
-            <source>${project.basedir}/target/dependencies/windows/apache-karaf-${karaf.version}/bin/karaf.bat</source>
+            <source>${project.basedir}/target/dependencies/windows/apache-karaf-4.4.6/bin/karaf.bat</source>
             <outputDirectory>/bin</outputDirectory>
             <destName>custom.bat</destName>
             <fileMode>0755</fileMode>

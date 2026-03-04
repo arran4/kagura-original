@@ -1,18 +1,18 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.services.camel.kagura;
 
 import com.base2.kagura.core.authentication.AuthenticationProvider;
@@ -22,6 +22,7 @@ import com.base2.kagura.core.report.configmodel.ReportConfig;
 import com.base2.kagura.core.report.configmodel.ReportsConfig;
 import com.base2.kagura.rest.exceptions.AuthenticationException;
 import com.base2.kagura.rest.exceptions.AuthorizationException;
+import java.util.*;
 import org.apache.camel.Body;
 import org.apache.camel.Exchange;
 import org.apache.camel.Header;
@@ -31,8 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 /**
  * @author aubels
  *         Date: 29/08/13
@@ -41,21 +40,22 @@ import java.util.*;
 public class AuthBean {
     private static final Logger LOG = LoggerFactory.getLogger(AuthBean.class);
     private Map<String, AuthDetails> tokens = new HashMap<String, AuthDetails>();
+
     @Autowired()
     private AuthenticationProvider authenticationProvider;
+
     @Autowired
     private ServerBean serverBean;
+
     @Autowired
     private ReportBean reportsBean;
 
     public void isLoggedIn(@Header("authToken") String authToken, Exchange exchange) throws AuthenticationException {
-        if (tokens.containsKey(authToken))
-        {
+        if (tokens.containsKey(authToken)) {
             AuthDetails authDetails = tokens.get(authToken);
-            if( authDetails.getLoggedIn() && !authDetails.expired())
-            {
+            if (authDetails.getLoggedIn() && !authDetails.expired()) {
                 authDetails.updateLastAccessed();
-                exchange.getIn().setHeader("authDetails",authDetails);
+                exchange.getIn().setHeader("authDetails", authDetails);
                 return;
             }
             LOG.info("Ticket was expired or logged out.");
@@ -63,9 +63,9 @@ public class AuthBean {
         throw new AuthenticationException("User is not logged in.");
     }
 
-    public void authenticate(@Header("user") String user, @Body String pass, Exchange exchange) throws AuthenticationException {
-        if (StringUtils.isBlank(user) || StringUtils.isBlank(pass))
-        {
+    public void authenticate(@Header("user") String user, @Body String pass, Exchange exchange)
+            throws AuthenticationException {
+        if (StringUtils.isBlank(user) || StringUtils.isBlank(pass)) {
             LOG.info("User '{}' attempted to login with a blank username or password.", user);
             throw new AuthenticationException("User was not logged in.");
         }
@@ -77,38 +77,32 @@ public class AuthBean {
         AuthDetails authDetails = new AuthDetails(user);
         tokens.put(authDetails.getToken().toString(), authDetails);
         Map<String, String> response = new HashMap<String, String>();
-        response.put("error","");
-        response.put("token",authDetails.getToken().toString());
-        exchange.getOut().setHeader("authDetails",authDetails);
+        response.put("error", "");
+        response.put("token", authDetails.getToken().toString());
+        exchange.getOut().setHeader("authDetails", authDetails);
         exchange.getOut().setBody(response);
     }
 
-    public void buildAuthFail(Exchange exchange)
-    {
+    public void buildAuthFail(Exchange exchange) {
         Map<String, String> response = new HashMap<String, String>();
-        response.put("error","Authentication failure");
-        response.put("token","");
+        response.put("error", "Authentication failure");
+        response.put("token", "");
         exchange.getOut().setBody(response);
     }
 
-    public void cleanAuthTickets(Exchange exchange)
-    {
+    public void cleanAuthTickets(Exchange exchange) {
         List<String> removeThese = new ArrayList<String>();
-        for (AuthDetails authDetails : tokens.values())
-        {
-            if (authDetails.expired())
-                removeThese.add(authDetails.getToken().toString());
+        for (AuthDetails authDetails : tokens.values()) {
+            if (authDetails.expired()) removeThese.add(authDetails.getToken().toString());
         }
-        for (String each: removeThese)
-        {
+        for (String each : removeThese) {
             LOG.info("Removing token: " + each);
             tokens.remove(each);
         }
     }
 
     public void logout(@Header("authToken") String authToken, Exchange exchange) throws AuthenticationException {
-        if (tokens.containsKey(authToken) && tokens.get(authToken).getLoggedIn())
-        {
+        if (tokens.containsKey(authToken) && tokens.get(authToken).getLoggedIn()) {
             tokens.remove(authToken);
             exchange.getIn().removeHeader("authDetails");
             return;
@@ -117,23 +111,21 @@ public class AuthBean {
     }
 
     public void canAccessReport(
-            @Header("authToken") String authToken
-            , @Header("reportId") String reportId
-            , Exchange exchange) throws AuthorizationException, AuthenticationException {
-        if (tokens.containsKey(authToken) && tokens.get(authToken).getLoggedIn())
-        {
+            @Header("authToken") String authToken, @Header("reportId") String reportId, Exchange exchange)
+            throws AuthorizationException, AuthenticationException {
+        if (tokens.containsKey(authToken) && tokens.get(authToken).getLoggedIn()) {
             User user = authenticationProvider.getUser(tokens.get(authToken).getUsername());
             Collection<String> reports = authenticationProvider.getUserReports(user);
             exchange.getIn().setHeader("groups", user.getGroups());
             exchange.getIn().setHeader("userExtra", user.getExtraOptions());
-            if (reports.contains(reportId))
-                return;
+            if (reports.contains(reportId)) return;
             throw new AuthorizationException("User is not logged in.");
         }
         throw new AuthenticationException("User is not logged in.");
     }
 
-    public Collection<String> getReports(@Header("authToken") String authToken, Exchange exchange) throws AuthenticationException {
+    public Collection<String> getReports(@Header("authToken") String authToken, Exchange exchange)
+            throws AuthenticationException {
         if (!tokens.containsKey(authToken) || !tokens.get(authToken).getLoggedIn())
             throw new AuthenticationException("User is not logged in.");
         AuthDetails authDetails = tokens.get(authToken);
@@ -142,10 +134,8 @@ public class AuthBean {
         return result;
     }
 
-    public Map<String, Object> getReportsDetailed(
-            @Header("authToken") String authToken
-            , Exchange exchange
-    ) throws AuthenticationException {
+    public Map<String, Object> getReportsDetailed(@Header("authToken") String authToken, Exchange exchange)
+            throws AuthenticationException {
         if (!tokens.containsKey(authToken) || !tokens.get(authToken).getLoggedIn())
             throw new AuthenticationException("User is not logged in.");
         AuthDetails authDetails = tokens.get(authToken);
@@ -156,12 +146,10 @@ public class AuthBean {
         User user = authenticationProvider.getUser(tokens.get(authToken).getUsername());
         Collection<String> groups = user.getGroups();
         Map<String, Object> userExtra = user.getExtraOptions();
-        final Map<String, Object> extra = reportsBean.generateExtraRunOptions(authDetails,groups, userExtra);
-        for (String reportName : reports)
-        {
+        final Map<String, Object> extra = reportsBean.generateExtraRunOptions(authDetails, groups, userExtra);
+        for (String reportName : reports) {
             ReportConfig reportConfig = reportsConfig.getReport(reportName);
-            if (reportConfig == null)
-            {
+            if (reportConfig == null) {
                 LOG.error("Report: {} didn't load.", reportName);
                 continue;
             }
@@ -172,13 +160,11 @@ public class AuthBean {
     }
 
     // Used in tests
-    public List<Group> getGroups()
-    {
+    public List<Group> getGroups() {
         return authenticationProvider.getGroups();
     }
 
-    public List<User> getUsers()
-    {
+    public List<User> getUsers() {
         return authenticationProvider.getUsers();
     }
 
@@ -189,7 +175,6 @@ public class AuthBean {
     public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }
-
 
     // End used in tests
 
@@ -206,14 +191,12 @@ public class AuthBean {
             this.lastAccessed = Calendar.getInstance().getTime();
         }
 
-        public Boolean expired()
-        {
+        public Boolean expired() {
             Date curDate = Calendar.getInstance().getTime();
             return curDate.getTime() - this.lastAccessed.getTime() > 2 * 24 * 60 * 60 * 1000;
         }
 
-        public void updateLastAccessed()
-        {
+        public void updateLastAccessed() {
             this.lastAccessed = Calendar.getInstance().getTime();
         }
 
@@ -261,5 +244,4 @@ public class AuthBean {
     public void setReportsBean(ReportBean reportsBean) {
         this.reportsBean = reportsBean;
     }
-
 }

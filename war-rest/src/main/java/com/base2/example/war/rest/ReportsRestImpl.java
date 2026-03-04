@@ -1,18 +1,18 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.example.war.rest;
 
 import com.base2.kagura.core.ExportHandler;
@@ -25,15 +25,13 @@ import com.base2.kagura.rest.helpers.ParameterUtils;
 import com.base2.kagura.rest.model.Parameters;
 import com.base2.kagura.rest.model.ReportDetails;
 import com.base2.kagura.rest.model.ReportDetailsAndResults;
-
-import javax.ws.rs.*;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.*;
 
 /**
  * @author aubels
@@ -70,40 +68,33 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
     private KaguraBean kaguraBean;
 
     @Override
-    public ReportDetails reportDetails()
-    {
+    public ReportDetails reportDetails() {
         if (!kaguraBean.userHasAccess(reportName)) return kaguraBean.noSuchReport(reportName, new ReportDetails());
         return kaguraBean.getReportDetails(reportName, true, new ReportDetails());
     }
 
     @Override
-    public ReportDetailsAndResults runReport(
-            boolean allpages,
-            Integer pageLimit,
-            int page,
-            Parameters parameters
-    ) throws AuthenticationException {
+    public ReportDetailsAndResults runReport(boolean allpages, Integer pageLimit, int page, Parameters parameters)
+            throws AuthenticationException {
         ReportDetailsAndResults result = new ReportDetailsAndResults();
         if (kaguraBean.getUser() == null) throw new AuthenticationException();
         if (!kaguraBean.userHasAccess(reportName)) return kaguraBean.noSuchReport(reportName, result);
         ReportConnector reportConnector = kaguraBean.getConnector(reportName);
-        if (reportConnector == null)
-        {
-            result.setErrors(new ArrayList<String>() {{
-                add("Report error.");
-            }});
+        if (reportConnector == null) {
+            result.setErrors(new ArrayList<String>() {
+                {
+                    add("Report error.");
+                }
+            });
             return result;
         }
         reportConnector.setPage(page);
         List<String> errors = new ArrayList<String>();
-        if (allpages)
-        {
+        if (allpages) {
             reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
             reportConnector.setPage(0);
-        }
-        else
-            if (pageLimit != null && pageLimit > 0)
-                reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
+        } else if (pageLimit != null && pageLimit > 0)
+            reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
         ParameterUtils.insertParameters(parameters, reportConnector, errors);
         reportConnector.run(kaguraBean.generateExtraRunOptions());
         errors.addAll(reportConnector.getErrors());
@@ -117,33 +108,29 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
 
     @Override
     public ReportDetailsAndResults detailsAndRunReport(
-            boolean allpages,
-            Integer pageLimit,
-            int page,
-            Parameters parameters
-    ) throws AuthenticationException {
+            boolean allpages, Integer pageLimit, int page, Parameters parameters) throws AuthenticationException {
         if (kaguraBean.getUser() == null) throw new AuthenticationException("Authentication failure");
-        if (!kaguraBean.userHasAccess(reportName)) return kaguraBean.noSuchReport(reportName, new ReportDetailsAndResults());
+        if (!kaguraBean.userHasAccess(reportName))
+            return kaguraBean.noSuchReport(reportName, new ReportDetailsAndResults());
         ReportConfig reportConfig = kaguraBean.getReportConfig(reportName);
         ReportConnector reportConnector = reportConfig.getReportConnector();
-        if (reportConnector == null)
-        {
-            return new ReportDetailsAndResults()
-            {{
-                setErrors(new ArrayList<String>() {{
-                    add("Report error.");
-                }});
-            }};
+        if (reportConnector == null) {
+            return new ReportDetailsAndResults() {
+                {
+                    setErrors(new ArrayList<String>() {
+                        {
+                            add("Report error.");
+                        }
+                    });
+                }
+            };
         }
         reportConnector.setPage(page);
         List<String> errors = new ArrayList<String>();
-        if (allpages)
-        {
+        if (allpages) {
             reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
             reportConnector.setPage(0);
-        }
-        else
-        if (pageLimit != null && pageLimit > 0)
+        } else if (pageLimit != null && pageLimit > 0)
             reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
         final Map<String, Object> extra = kaguraBean.generateExtraRunOptions();
         reportConfig.prepareParameters(extra);
@@ -161,12 +148,8 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
 
     @Override
     public InputStream exportReport(
-            boolean allpages,
-            String filetype,
-            Integer pageLimit,
-            int page,
-            Parameters parameters
-    ) throws AuthenticationException {
+            boolean allpages, String filetype, Integer pageLimit, int page, Parameters parameters)
+            throws AuthenticationException {
         if (kaguraBean.getUser() == null) throw new AuthenticationException("Authentication failure");
         if (!kaguraBean.userHasAccess(reportName)) return null;
         ExportHandler exportHandler = new ExportHandler();
@@ -176,25 +159,19 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
             List<String> errors = new ArrayList<String>();
             ParameterUtils.insertParameters(parameters, reportConnector, errors);
             reportConnector.setPage(page);
-            if (allpages)
-            {
+            if (allpages) {
                 reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
                 reportConnector.setPage(0);
-            }
-            else
-            if (pageLimit != null && pageLimit > 0)
+            } else if (pageLimit != null && pageLimit > 0)
                 reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
             reportConnector.run(kaguraBean.generateExtraRunOptions());
             List<ColumnDef> columns = reportConnector.getColumns();
             List<Map<String, Object>> rows = reportConnector.getRows();
-            if (filetype.equalsIgnoreCase("pdf"))
-            {
+            if (filetype.equalsIgnoreCase("pdf")) {
                 exportHandler.generatePdf(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("csv"))
-            {
+            } else if (filetype.equalsIgnoreCase("csv")) {
                 exportHandler.generateCsv(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("xls"))
-            {
+            } else if (filetype.equalsIgnoreCase("xls")) {
                 exportHandler.generateXls(out, rows, columns);
             }
         } finally {
@@ -208,5 +185,4 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
         }
         return new ByteArrayInputStream(out.toByteArray());
     }
-
 }

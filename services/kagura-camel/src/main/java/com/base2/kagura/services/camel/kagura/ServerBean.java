@@ -1,26 +1,23 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.services.camel.kagura;
 
 import com.base2.kagura.core.authentication.AuthenticationProvider;
 import com.base2.kagura.core.storage.ReportsProvider;
 import com.base2.kagura.rest.helpers.ParameterUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
-import org.apache.commons.beanutils.converters.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -29,9 +26,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.Date;
 
 /**
  * @author aubels
@@ -43,10 +37,13 @@ public class ServerBean implements ApplicationContextAware {
 
     @Value("${com.base2.kagura.reportloc:/TestReports/}")
     private String configPath;
+
     @Value("${com.base2.kagura.authtype:fileAuthentication}")
     private String authType;
+
     @Value("${com.base2.kagura.reportStorage:fileReportsProvider}")
     private String reportStorage;
+
     @Value("${com.base2.kagura.exportLimit:10000}")
     private Integer exportLimit;
 
@@ -61,32 +58,26 @@ public class ServerBean implements ApplicationContextAware {
     }
 
     @Bean()
-    public AuthenticationProvider authenticationProvider()
-    {
+    public AuthenticationProvider authenticationProvider() {
         LOG.info("Loading Authentication provider: " + authType);
-        if (applicationContext == null)
-        {
+        if (applicationContext == null) {
             LOG.info("No spring context can not load authentication provider");
             return null;
         }
         final Object bean = applicationContext.getBean(authType);
-        if (bean == null)
-            LOG.info("Warning bean is null.");
+        if (bean == null) LOG.info("Warning bean is null.");
         return (AuthenticationProvider) bean;
     }
 
     @Bean()
-    public ReportsProvider<?> reportsProvider()
-    {
+    public ReportsProvider<?> reportsProvider() {
         final Object bean = applicationContext.getBean(reportStorage);
-        if (applicationContext == null)
-        {
+        if (applicationContext == null) {
             LOG.info("No spring context can not load reports provider");
             return null;
         }
         LOG.info("Loading reports provider: " + reportStorage);
-        if (bean == null)
-            LOG.info("Warning bean is null.");
+        if (bean == null) LOG.info("Warning bean is null.");
         return (ReportsProvider<?>) bean;
     }
 

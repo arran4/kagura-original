@@ -197,6 +197,7 @@
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
+            <type>pom</type>
                 <!-- Needs to be the same version that REST Assured depends on -->
                 <version>${groovy.version}</version>
             </dependency>
@@ -248,8 +249,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <!-- Generate java doc files -->

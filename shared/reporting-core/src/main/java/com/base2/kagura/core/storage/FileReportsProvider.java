@@ -1,27 +1,26 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.storage;
 
 import com.base2.kagura.core.report.configmodel.ReportsConfig;
 import com.google.common.io.PatternFilenameFilter;
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author aubels
@@ -72,12 +71,10 @@ public class FileReportsProvider extends ReportsProvider<File> {
      * @throws IOException
      */
     protected void loadReport(ReportsConfig result, File report, String reportId) throws IOException {
-        if (report.isDirectory())
-        {
+        if (report.isDirectory()) {
             FilenameFilter configYamlFilter = new PatternFilenameFilter("^reportconf.(yaml|json)$");
             File[] selectYaml = report.listFiles(configYamlFilter);
-            if (selectYaml != null && selectYaml.length == 1)
-            {
+            if (selectYaml != null && selectYaml.length == 1) {
                 File selectedYaml = selectYaml[0];
                 loadReport(result, FileUtils.openInputStream(selectedYaml), reportId);
             }
@@ -89,7 +86,8 @@ public class FileReportsProvider extends ReportsProvider<File> {
     protected File[] getReportList() {
         File file = new File(reportDirectory);
         if (!file.exists())
-           file = new File(FileReportsProvider.class.getResource(reportDirectory).getFile());
+            file = new File(
+                    FileReportsProvider.class.getResource(reportDirectory).getFile());
         if (!file.exists()) {
             errors.add("Couldn't open report directory, doesn't exist.");
             return null;

@@ -1,18 +1,18 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.example.war.rest;
 
 import com.base2.kagura.core.authentication.AuthenticationProvider;
@@ -26,14 +26,13 @@ import com.base2.kagura.core.storage.ReportsProvider;
 import com.base2.kagura.rest.helpers.ParameterUtils;
 import com.base2.kagura.rest.model.ReportDetails;
 import com.base2.kagura.rest.model.ReportDetailsAndResults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.Serializable;
+import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
-import java.io.Serializable;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
@@ -48,13 +47,14 @@ public class KaguraBean implements Serializable {
     AuthenticationProvider authenticationProvider;
     User user;
 
-    {{
-        ParameterUtils.SetupDateConverters();
-    }}
+    {
+        {
+            ParameterUtils.SetupDateConverters();
+        }
+    }
 
     @PostConstruct
-    void init()
-    {
+    void init() {
         final String reportLoc = "/reports";
         reportsProvider = new FileReportsProvider(reportLoc);
         authenticationProvider = new FileAuthentication(reportLoc);
@@ -70,12 +70,9 @@ public class KaguraBean implements Serializable {
     public <T extends ReportDetails> T getReportDetails(String reportName, boolean full, T result) {
         Map<String, Object> errors = new HashMap<String, Object>();
         ReportConfig reportConfig = getReportConfig(reportName, errors);
-        if (reportConfig != null)
-        {
+        if (reportConfig != null) {
             getReportDetails(reportConfig, full, result);
-        }
-        else
-        {
+        } else {
             result = noSuchReport(reportName, result);
         }
         return result;
@@ -85,8 +82,7 @@ public class KaguraBean implements Serializable {
         reportConfig.prepareParameters(generateExtraRunOptions());
         result.setReportId(reportConfig.getReportId());
         result.setExtra(reportConfig.getExtraOptions());
-        if (full)
-        {
+        if (full) {
             result.setParams(reportConfig.getParamConfig());
             result.setColumns(reportConfig.getColumns());
         }
@@ -96,25 +92,21 @@ public class KaguraBean implements Serializable {
     public ReportConfig getReportConfig(String reportName, Map<String, Object> result) {
         ReportsConfig reportsConfig = getReportsConfig();
         ReportConfig reportConfig = reportsConfig.getReports().get(reportName);
-        if (reportConfig == null)
-            return null;
-        if (reportsConfig.getErrors() != null)
-            result.put("errors", reportsConfig.getErrors());
+        if (reportConfig == null) return null;
+        if (reportsConfig.getErrors() != null) result.put("errors", reportsConfig.getErrors());
         return reportConfig;
     }
 
     public ReportsConfig getReportsConfig() {
         final ReportsConfig reportsConfig = reportsProvider.getReportsConfig();
         if (reportsProvider.getErrors() != null)
-            for (String e : reportsProvider.getErrors())
-                LOG.info("Report error: {}", e);
+            for (String e : reportsProvider.getErrors()) LOG.info("Report error: {}", e);
         return reportsConfig;
     }
 
     public ReportConnector getConnector(String reportId) {
         final ReportConfig reportConfig = getReportConfig(reportId);
-        if (reportConfig != null)
-            return reportConfig.getReportConnector();
+        if (reportConfig != null) return reportConfig.getReportConnector();
         return null;
     }
 
@@ -123,10 +115,10 @@ public class KaguraBean implements Serializable {
     }
 
     public Map<String, Object> generateExtraRunOptions() {
-        return new HashMap<String, Object>()
-        {{
-
-        }};
+        return new HashMap<String, Object>() {
+            {
+            }
+        };
     }
 
     public void authenticateUser(String user, String pass) throws Exception {
@@ -149,7 +141,6 @@ public class KaguraBean implements Serializable {
         if (user == null) return new HashSet<String>();
         return authenticationProvider.getUserReports(user.getUsername());
     }
-
 
     public boolean userHasAccess(String reportId) {
         return getUserReports().contains(reportId);

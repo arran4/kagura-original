@@ -1,23 +1,22 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.configmodel;
 
 import com.base2.kagura.core.report.connectors.FakeDataReportConnector;
 import com.base2.kagura.core.report.connectors.ReportConnector;
-
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ import java.util.Map;
  */
 public class FakeReportConfig extends ReportConfig {
     List<Map<String, Object>> rows;
-    Map<String, ParamToColumnRule> paramRules; //*<
+    Map<String, ParamToColumnRule> paramRules; // *<
 
     /**
      * {@inheritDoc}
@@ -80,7 +79,12 @@ public class FakeReportConfig extends ReportConfig {
          * SubString: String is part of another string
          * IntegerRange: Integer is between, less than or greater than a particular range.
          */
-        public enum MapRules {Exact, SubString, IntegerRange};
+        public enum MapRules {
+            Exact,
+            SubString,
+            IntegerRange
+        };
+
         String toColumn;
         MapRules mapRule;
 
