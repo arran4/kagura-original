@@ -34,6 +34,17 @@ on:
         default: "snapshot"
         type: choice
         options: [snapshot, release]
+      increment:
+        description: "Version increment type"
+        required: false
+        default: "release"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - release
+          - test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -120,14 +131,101 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Prepare Version and Tag
+        id: prep_version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && ("${{ inputs.mode }}" == "release" || "${{ inputs.mode }}" == "release-snapshot") ]]; then
+            # Extract current version from root POM
+            CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
+            IFS='.' read -r -a PARTS <<< "$BASE_VERSION"
+            MAJOR=${PARTS[0]:-0}
+            MINOR=${PARTS[1]:-0}
+            PATCH=${PARTS[2]:-0}
+
+            INCREMENT="${{ inputs.increment }}"
+
+            if [ "$INCREMENT" == "major" ]; then
+              NEW_VERSION="$((MAJOR + 1)).0.0"
+            elif [ "$INCREMENT" == "minor" ]; then
+              NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+            elif [ "$INCREMENT" == "patch" ]; then
+              NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+            elif [ "$INCREMENT" == "release" ]; then
+              NEW_VERSION="$BASE_VERSION"
+            elif [ "$INCREMENT" == "test" ]; then
+              NEW_VERSION="$BASE_VERSION-test"
+            elif [ -n "$INCREMENT" ]; then
+              NEW_VERSION="$INCREMENT"
+            else
+              NEW_VERSION="$BASE_VERSION"
+            fi
+
+            IFS='.' read -r -a NEW_PARTS <<< "${NEW_VERSION%-*}"
+            N_MAJOR=${NEW_PARTS[0]:-0}
+            N_MINOR=${NEW_PARTS[1]:-0}
+            N_PATCH=${NEW_PARTS[2]:-0}
+            NEXT_VERSION="$N_MAJOR.$N_MINOR.$((N_PATCH + 1))-SNAPSHOT"
+
+            echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+            echo "NEXT_VERSION=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "TAG_NAME=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+            # Setup Git
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Update Maven version
+            mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false
+
+            # Commit and Tag
+            git commit -am "Release $NEW_VERSION"
+            git tag "v$NEW_VERSION"
+
+            # Push tag
+            git push origin "v$NEW_VERSION"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "TAG_NAME=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build Packages
         run: mvn clean package -pl war-rest,example/javascript -am -DskipTests
 
       - name: Release Artifacts
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.prep_version.outputs.TAG_NAME }}
           files: |
             war-rest/target/kagura.war
             example/javascript/target/javascript.war
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Next Version PR
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'release' || inputs.mode == 'release-snapshot') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEXT_VERSION="${{ steps.prep_version.outputs.NEXT_VERSION }}"
+          NEW_BRANCH="bump-version-$NEXT_VERSION"
+
+          # Setup Git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create branch and update POMs
+          git checkout -b "$NEW_BRANCH"
+          mvn versions:set -DnewVersion="$NEXT_VERSION" -DgenerateBackupPoms=false
+          git commit -am "Prepare next development iteration $NEXT_VERSION"
+
+          # Push and create PR
+          git push -u origin "$NEW_BRANCH"
+          gh pr create --title "Prepare next development iteration $NEXT_VERSION" --body "Automated PR to bump version to $NEXT_VERSION for next development iteration." --base main --head "$NEW_BRANCH"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
