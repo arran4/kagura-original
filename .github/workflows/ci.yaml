@@ -26,6 +26,7 @@ jobs:
         run: mvn spotless:check
 
       - name: Test
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         run: mvn test -pl war-rest,example/javascript -am
 
       - name: Build with Maven
