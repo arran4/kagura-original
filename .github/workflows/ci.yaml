@@ -22,12 +22,20 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Check Formatting
+        run: mvn spotless:check
+
+      - name: Test
+        run: mvn test -pl war-rest,example/javascript -am
+
       - name: Build with Maven
-        run: mvn clean package -pl war-rest -am -DskipTests
+        run: mvn clean package -pl war-rest,example/javascript -am -DskipTests
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: war-rest/target/kagura.war
+          files: |
+            war-rest/target/kagura.war
+            example/javascript/target/javascript.war
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
