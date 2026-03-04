@@ -1,24 +1,9 @@
-# Kagura
-
-Kagurabi: a simple Java-based reporting / marshalling framework.
-
-## Project Structure
-
-This repository contains the base POM of the Kagura project along with its modules:
-
-* `shared` - Shared resources and utilities.
-* `services` - Core services of the framework.
-* `example` - Example usage of the framework.
-* `war-rest` - REST API component.
-
-## Building
-
-To build the project and its modules, run the following Maven command from the root directory:
-
-```bash
-mvn clean install
-```
-
+---
+title: "Introduction"
+date: 2026-03-04T00:58:36+00:00
+draft: false
+---
+# Introduction
 
 Kagura is an open source project created by base2Services. It is a flexible simple reporting platform that allows reports to be delivered in a speedy manner, without cumbersome designer UIs intended for a less technical market.
 

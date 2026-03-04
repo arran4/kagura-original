@@ -1,0 +1,34 @@
+---
+title: "Maven Deployment"
+date: 2026-03-04T00:58:36+00:00
+draft: false
+---
+# Maven Deployment
+
+Maven Deployment
+
+First we need to checkout the code:
+Terminal 1
+git clone https://github.com/base2Services/kagura.git
+cd kagura
+mvn compile package install
+
+Open up another terminal:
+
+In terminal 1, we are going to start the Jetty service, this is where we host the
+Terminal 1
+cd example/javascript
+mvn org.mortbay.jetty:jetty-maven-plugin:8.1.12.v20130726:run
+
+Press ^C to end it.
+
+In terminal 2, we are going to start the Camel service which provides the REST backend. All calls the the rest services are routed through Jetty to prevent cross domain scripting issues.
+Terminal 2
+cd services/kagura-camel
+mvn org.apache.camel:camel-maven-plugin:2.9.0:run
+
+Once both services are up you will be able to see and use the page at:
+
+http://localhost:8000/
+
+You can find the test users details and report configuration in the "users.yaml" file in the kagura/services/kagura-camel/src/main/resources/TestReports directory.
