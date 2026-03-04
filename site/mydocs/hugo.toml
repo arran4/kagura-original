@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://arran4.github.io/kagura-original/'
 languageCode = 'en-us'
 title = 'Kagura BI'
 theme = 'ananke'
