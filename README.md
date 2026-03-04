@@ -1,6 +1,39 @@
 # Kagura
 
+<img align="right" width="200" src="example/javascript/src/main/webapp/fake1.png" alt="Kagura Image">
+
 Kagurabi: a simple Java-based reporting / marshalling framework.
+
+Kagura is an open-source project originally created by base2Services. It is a flexible, simple reporting platform that allows reports to be delivered quickly, without cumbersome designer UIs intended for a less technical market. The aim of Kagura is to produce a simple and fast reporting framework which can be used widely and customised heavily.
+
+## Sample Configuration
+
+Kagura allows configuring reports simply through YAML files. For instance:
+
+```yaml
+type: "Fake"
+paramConfig:
+  - type: String
+    name: "An anonymous string"
+    help: "Just put anything in"
+    placeholder: "asdfsdaef"
+columns:
+  - name: test1
+    extraOptions:
+      styleType: text
+  - name: test2
+    extraOptions:
+      styleType: numbers
+rows:
+  - test2: 899
+    test1: "Unique Visitors"
+  - test2: 234
+    test1: String
+extraOptions:
+  displayPriority: 1
+  reportName: "Fake sample 1"
+  description: "Here be a report..."
+```
 
 ## Project Structure
 
@@ -20,28 +53,19 @@ mvn clean install
 ```
 
 
-Kagura is an open source project created by base2Services. It is a flexible simple reporting platform that allows reports to be delivered in a speedy manner, without cumbersome designer UIs intended for a less technical market.
+## Documentation
 
-This page contains more information on the project.
+The project documentation is hosted at: [https://arran4.github.io/kagura-original/](https://arran4.github.io/kagura-original/)
 
-    [Screenshots](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491543)
+You can find more detailed information there, such as:
+- [Architecture](https://arran4.github.io/kagura-original/docs/architecture/)
+- [Configurations](https://arran4.github.io/kagura-original/docs/configurations/)
+- [Use Cases](https://arran4.github.io/kagura-original/docs/use_cases/)
+- [As a Library](https://arran4.github.io/kagura-original/docs/as_a_library/)
+- [Introduction](https://arran4.github.io/kagura-original/docs/introduction/)
+- [Building a basic JNDI/JDBC report](https://arran4.github.io/kagura-original/docs/building_a_basic_jndi_jdbc_report/)
 
-    [Configurations](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491527)
-
-    [Use Cases](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491529)
-
-    [Architecture](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491540)
-
-    [Getting Started](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491542)
-
-    [Documentation](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491534)
-
-    [Quick reference](https://kagura.atlassian.net/wiki/spaces/KGR/pages/491532)
-
-Aim
-
-The aim of Kagura is to produce a simple and fast reporting framework, which can be used widely and customised heavily.
-Why
+### Why Kagura?
 
 Currently Reporting frameworks are either seriously under developed or proprietary in nature, and all of them are greatly ambitious in functionality and aim to be "usable" by non-technical users. As a result they often require the use of clunky UIs that require additional training and come with additional constraints. With Kagura we decided to go the opposite direction, and to provide a reporting framework which does as little as possible, and is to be used by bolting it on to other components, frameworks or larger projects.
 Where to get the code
