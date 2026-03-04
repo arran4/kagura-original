@@ -238,11 +238,19 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
+            <type>pom</type>
             <!-- Needs to be the same version that REST Assured depends on -->
             <!--<scope>test</scope>-->
         </dependency>
 
-    </dependencies>
+
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>5.9.2</version>
+                <scope>test</scope>
+            </dependency>
+</dependencies>
 
 	<build>
 		<finalName>kagura-camel</finalName>
@@ -293,8 +301,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <!-- Generate java doc files -->

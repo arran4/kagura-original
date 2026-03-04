@@ -1,18 +1,18 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.connectors;
 
 import com.base2.kagura.core.report.configmodel.GroovyReportConfig;
@@ -20,7 +20,6 @@ import com.base2.kagura.core.report.parameterTypes.ParamConfig;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,15 +29,15 @@ import java.util.Map;
  * Provides a groovy script based backend for reports. With this the script writer is required to manually construct
  * the result.
  * Values provided to groovy:
-     List&lt;Map&lt;String, Object&gt;&gt; rows
-     List&lt;ColumnDef&gt; columns
-     Integer page
-     Integer pageLimit
-     List&lt;ParamConfig&gt; params
-     Map&lt;String, Object&gt; extra
-
- To use this, keep in mind the page and pageLimit, refer to the parameters and insert new values into rows.
-
+ * List&lt;Map&lt;String, Object&gt;&gt; rows
+ * List&lt;ColumnDef&gt; columns
+ * Integer page
+ * Integer pageLimit
+ * List&lt;ParamConfig&gt; params
+ * Map&lt;String, Object&gt; extra
+ *
+ * To use this, keep in mind the page and pageLimit, refer to the parameters and insert new values into rows.
+ *
  * User: aubels
  * Date: 22/07/13
  * Time: 11:57 AM
@@ -61,8 +60,7 @@ public class GroovyDataReportConnector extends ReportConnector {
      */
     @Override
     public void runReport(Map<String, Object> extra) {
-        try
-        {
+        try {
             rows = new ArrayList<Map<String, Object>>();
             Script script = groovyShell.parse(groovyScript);
             script.setBinding(new Binding());
@@ -71,15 +69,16 @@ public class GroovyDataReportConnector extends ReportConnector {
             script.getBinding().setVariable("page", getPage());
             script.getBinding().setVariable("pageLimit", getPageLimit());
             script.getBinding().setVariable("paramConfig", getParameterConfig());
-            script.getBinding().setVariable("param", new HashMap<String, ParamConfig>() {{
-                for (ParamConfig paramConfig : getParameterConfig()) {
-                    put(paramConfig.getId(), paramConfig);
+            script.getBinding().setVariable("param", new HashMap<String, ParamConfig>() {
+                {
+                    for (ParamConfig paramConfig : getParameterConfig()) {
+                        put(paramConfig.getId(), paramConfig);
+                    }
                 }
-            }});
+            });
             script.getBinding().setVariable("extra", extra);
             script.run();
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
             getErrors().add(ex.getMessage());
         }

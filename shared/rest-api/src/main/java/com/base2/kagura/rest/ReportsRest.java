@@ -1,29 +1,27 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.rest;
 
 import com.base2.kagura.rest.exceptions.AuthenticationException;
 import com.base2.kagura.rest.model.Parameters;
 import com.base2.kagura.rest.model.ReportDetails;
 import com.base2.kagura.rest.model.ReportDetailsAndResults;
-
+import java.io.InputStream;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
 
 /**
  * @author aubels
@@ -31,10 +29,10 @@ import java.io.InputStream;
  */
 @Path("{authToken}/{reportId}")
 public class ReportsRest {
-//    @PathParam("reportId")
-//    private String reportId;
-//    @PathParam("authToken")
-//    private String authToken;
+    //    @PathParam("reportId")
+    //    private String reportId;
+    //    @PathParam("authToken")
+    //    private String authToken;
     /**
      *
      * @return returns report details
@@ -42,7 +40,9 @@ public class ReportsRest {
     @Path("details")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ReportDetails reportDetails(){return null;}
+    public ReportDetails reportDetails() {
+        return null;
+    }
 
     /**
      *
@@ -55,8 +55,10 @@ public class ReportsRest {
             @DefaultValue("false") @QueryParam("allpages") boolean allpages,
             @DefaultValue("10") @QueryParam("pageLimit") Integer pageLimit,
             @DefaultValue("0") @QueryParam("page") int page,
-            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters
-    ) throws AuthenticationException {return null;}
+            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters)
+            throws AuthenticationException {
+        return null;
+    }
 
     /**
      *
@@ -69,8 +71,10 @@ public class ReportsRest {
             @DefaultValue("false") @QueryParam("allpages") boolean allpages,
             @DefaultValue("10") @QueryParam("pageLimit") Integer pageLimit,
             @DefaultValue("0") @QueryParam("page") int page,
-            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters
-    ) throws AuthenticationException {return null;}
+            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters)
+            throws AuthenticationException {
+        return null;
+    }
 
     /**
      * Exports report as a file type;
@@ -86,6 +90,8 @@ public class ReportsRest {
             @DefaultValue("csv") @PathParam("filetype") String filetype,
             @DefaultValue("10") @QueryParam("pageLimit") Integer pageLimit,
             @DefaultValue("0") @QueryParam("page") int page,
-            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters
-    ) throws AuthenticationException {return null;}
+            @DefaultValue("{}") @QueryParam("parameters") Parameters parameters)
+            throws AuthenticationException {
+        return null;
+    }
 }

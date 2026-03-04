@@ -1,31 +1,29 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.parameterTypes;
 
 import com.base2.kagura.core.report.parameterTypes.datasources.OptionList;
 import com.base2.kagura.core.report.parameterTypes.datasources.Source;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Base type for the a parameter type. Also provides jackson loading information.
@@ -38,14 +36,13 @@ import java.util.regex.Pattern;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type",
         defaultImpl = SingleParamConfig.class,
-        visible = true
-)
+        visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = MultiParamConfig.class, name = "ManyCombo"),
-        @JsonSubTypes.Type(value = SingleParamConfig.class, name = ""),
-        @JsonSubTypes.Type(value = BooleanParamConfig.class, name = "Boolean"),
-        @JsonSubTypes.Type(value = DateParamConfig.class, name = "Date"),
-        @JsonSubTypes.Type(value = DateTimeParamConfig.class, name = "DateTime"),
+    @JsonSubTypes.Type(value = MultiParamConfig.class, name = "ManyCombo"),
+    @JsonSubTypes.Type(value = SingleParamConfig.class, name = ""),
+    @JsonSubTypes.Type(value = BooleanParamConfig.class, name = "Boolean"),
+    @JsonSubTypes.Type(value = DateParamConfig.class, name = "Date"),
+    @JsonSubTypes.Type(value = DateTimeParamConfig.class, name = "DateTime"),
 })
 public abstract class ParamConfig {
     String name;
@@ -59,8 +56,7 @@ public abstract class ParamConfig {
     /**
      * Constructor
      */
-    public ParamConfig() {
-    }
+    public ParamConfig() {}
 
     /**
      * Simple constructor. Pre-populates data source with an empty OptionList.
@@ -74,7 +70,7 @@ public abstract class ParamConfig {
         this.type = type;
         this.help = help;
         this.placeholder = placeholder;
-        this.from = new OptionList( Arrays.asList(new Object[0]));
+        this.from = new OptionList(Arrays.asList(new Object[0]));
     }
 
     /**
@@ -108,7 +104,7 @@ public abstract class ParamConfig {
      * @return
      */
     public static ParamConfig String(String name) {
-        return String(name, "","");
+        return String(name, "", "");
     }
 
     /**
@@ -135,7 +131,7 @@ public abstract class ParamConfig {
      * @return
      */
     public static ParamConfig Number(String name) {
-        return new SingleParamConfig(name, "Number","","");
+        return new SingleParamConfig(name, "Number", "", "");
     }
 
     /**
@@ -144,7 +140,7 @@ public abstract class ParamConfig {
      * @return
      */
     public static ParamConfig Boolean(String name) {
-        return new BooleanParamConfig(name, "Boolean","","");
+        return new BooleanParamConfig(name, "Boolean", "", "");
     }
 
     /**
@@ -153,7 +149,7 @@ public abstract class ParamConfig {
      * @return
      */
     public static ParamConfig DateTime(String name) {
-        return new DateTimeParamConfig(name, "DateTime","","");
+        return new DateTimeParamConfig(name, "DateTime", "", "");
     }
 
     /**
@@ -162,7 +158,7 @@ public abstract class ParamConfig {
      * @return
      */
     public static ParamConfig Date(String name) {
-        return new DateTimeParamConfig(name, "Date","","");
+        return new DateTimeParamConfig(name, "Date", "", "");
     }
 
     /**
@@ -234,12 +230,11 @@ public abstract class ParamConfig {
      */
     @Override
     public String toString() {
-        return "ParamConfig{" +
-                "name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", help='" + help + '\'' +
-                ", placeholder='" + placeholder + '\'' +
-                '}';
+        return "ParamConfig{" + "name='"
+                + name + '\'' + ", type='"
+                + type + '\'' + ", help='"
+                + help + '\'' + ", placeholder='"
+                + placeholder + '\'' + '}';
     }
 
     /**
@@ -247,12 +242,11 @@ public abstract class ParamConfig {
      * @return
      */
     public Collection<Object> getValues() {
-        if (from != null)
-        {
+        if (from != null) {
             return from.getValues();
         }
         return null;
-//        return Arrays.asList();
+        //        return Arrays.asList();
     }
 
     /**
@@ -261,8 +255,7 @@ public abstract class ParamConfig {
      * @param extra
      */
     public void prepareParameter(Map<String, Object> extra) {
-        if (from != null)
-        {
+        if (from != null) {
             from.prepareParameter(extra);
         }
     }
@@ -271,8 +264,7 @@ public abstract class ParamConfig {
      * Ignores values set.
      * @param values
      */
-    public void setValues(Collection<Object> values)
-    {
+    public void setValues(Collection<Object> values) {
         // Ignore..
     }
 

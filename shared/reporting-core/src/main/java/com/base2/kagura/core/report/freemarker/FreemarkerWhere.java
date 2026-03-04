@@ -1,29 +1,28 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.freemarker;
 
 import freemarker.core.Environment;
 import freemarker.template.*;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Where tag. Has two functions:
@@ -37,8 +36,7 @@ import java.util.Map;
  * Date: 29/07/13
  * Time: 2:50 PM
  */
-public class FreemarkerWhere implements TemplateDirectiveModel
-{
+public class FreemarkerWhere implements TemplateDirectiveModel {
     private final List<String> errors;
 
     /**
@@ -57,43 +55,41 @@ public class FreemarkerWhere implements TemplateDirectiveModel
      * {@inheritDoc}
      */
     @Override
-    public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
+    public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body)
+            throws TemplateException, IOException {
         StringWriter stringWriter = new StringWriter();
         WhereContext whereContext = new WhereContext(env.getCustomAttribute("whereTag"));
         env.setCustomAttribute("whereTag", whereContext);
         body.render(stringWriter);
-        if (params.size() != 0 && !((Map.Entry)params.entrySet().toArray()[0]).getKey().equals("type"))
-        {
+        if (params.size() != 0
+                && !((Map.Entry) params.entrySet().toArray()[0]).getKey().equals("type")) {
             String message = "This directive only takes 'type' with a value of either 'AND' or 'OR'.";
             errors.add(message);
             throw new TemplateModelException(message);
         }
         Object typeParam = params.get("type");
-        if (typeParam instanceof TemplateScalarModel)
-        {
+        if (typeParam instanceof TemplateScalarModel) {
             TemplateScalarModel typeScalar = (TemplateScalarModel) typeParam;
             if (StringUtils.isNotBlank(typeScalar.getAsString()))
                 whereContext.setConnector(typeScalar.getAsString().toUpperCase());
         }
-        if (!Arrays.asList("AND", "OR").contains(whereContext.getConnector()))
-        {
+        if (!Arrays.asList("AND", "OR").contains(whereContext.getConnector())) {
             String message = "This directive only takes 'type' with a value of either 'AND' or 'OR'.";
             errors.add(message);
             throw new TemplateModelException(message);
         }
 
-        String outputBody = StringUtils.join(whereContext.getFreemarkerWhereClauses(), " " + whereContext.getConnector() + " ");
-        if (whereContext.getFreemarkerWhereClauses().size() > 1 && whereContext.getParent() != null && !whereContext.getParent().getConnector().equals(whereContext.getConnector()))
+        String outputBody =
+                StringUtils.join(whereContext.getFreemarkerWhereClauses(), " " + whereContext.getConnector() + " ");
+        if (whereContext.getFreemarkerWhereClauses().size() > 1
+                && whereContext.getParent() != null
+                && !whereContext.getParent().getConnector().equals(whereContext.getConnector()))
             outputBody = "(" + outputBody + ")";
         if (StringUtils.isNotBlank(outputBody)) {
-            if (whereContext.getParent() == null)
-                env.getOut().write(" WHERE ");
-            if (whereContext.getParent() != null)
-                whereContext.getParent().addWhereBody(outputBody);
-            else
-                env.getOut().write(outputBody);
+            if (whereContext.getParent() == null) env.getOut().write(" WHERE ");
+            if (whereContext.getParent() != null) whereContext.getParent().addWhereBody(outputBody);
+            else env.getOut().write(outputBody);
         }
         env.setCustomAttribute("whereTag", whereContext.getParent());
     }
-
 }

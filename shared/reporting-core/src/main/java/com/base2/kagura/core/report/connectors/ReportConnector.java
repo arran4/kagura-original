@@ -1,33 +1,32 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.connectors;
 
+import com.base2.kagura.core.report.configmodel.ReportConfig;
 import com.base2.kagura.core.report.configmodel.parts.ColumnDef;
 import com.base2.kagura.core.report.parameterTypes.ParamConfig;
-import com.base2.kagura.core.report.configmodel.ReportConfig;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Base representational object for a ReportConnector. A report connector is the core of a report, it takes a report
@@ -47,7 +46,7 @@ public abstract class ReportConnector implements Serializable {
      * A way to fetch the results. Some engines cache, others store.
      * @return
      */
-    public abstract List<Map<String,Object>> getRows();
+    public abstract List<Map<String, Object>> getRows();
 
     /**
      * Runs the report.
@@ -55,17 +54,14 @@ public abstract class ReportConnector implements Serializable {
      *              and what ever else is of value to the user.
      */
     public void run(Map<String, Object> extra) {
-        if (getParameterConfig() != null)
-        {
+        if (getParameterConfig() != null) {
             Boolean parametersRequired = false;
             List<String> requiredParameters = new ArrayList<String>();
-            for (ParamConfig paramConfig : getParameterConfig())
-            {
-                if (BooleanUtils.isTrue(paramConfig.getRequired()))
-                {
+            for (ParamConfig paramConfig : getParameterConfig()) {
+                if (BooleanUtils.isTrue(paramConfig.getRequired())) {
                     try {
-                        if (StringUtils.isBlank(ObjectUtils.toString(PropertyUtils.getProperty(paramConfig, "value"))))
-                        {
+                        if (StringUtils.isBlank(
+                                ObjectUtils.toString(PropertyUtils.getProperty(paramConfig, "value")))) {
                             parametersRequired = true;
                             requiredParameters.add(paramConfig.getName());
                         }
@@ -78,9 +74,9 @@ public abstract class ReportConnector implements Serializable {
                     }
                 }
             }
-            if (parametersRequired)
-            {
-                errors.add("Some required parameters weren't filled in: " + StringUtils.join(requiredParameters ,", ")+ ".");
+            if (parametersRequired) {
+                errors.add("Some required parameters weren't filled in: " + StringUtils.join(requiredParameters, ", ")
+                        + ".");
                 return;
             }
         }
@@ -103,8 +99,7 @@ public abstract class ReportConnector implements Serializable {
         this.columns = reportConfig.getColumns();
         this.parameterConfig = reportConfig.getParamConfig();
         this.errors = new ArrayList<String>();
-        if (reportConfig.getPageLimit() != null)
-        {
+        if (reportConfig.getPageLimit() != null) {
             this.pageLimit = reportConfig.getPageLimit();
         }
     }
@@ -120,8 +115,7 @@ public abstract class ReportConnector implements Serializable {
     /**
      * Clears the errors from the list.
      */
-    public void clearErrors()
-    {
+    public void clearErrors() {
         errors = new ArrayList<String>();
     }
 

@@ -1,34 +1,33 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core.report.connectors;
 
 import com.base2.kagura.core.report.configmodel.FakeReportConfig;
 import com.base2.kagura.core.report.parameterTypes.ParamConfig;
 import com.base2.kagura.core.report.parameterTypes.SingleParamConfig;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Fake Data Report connector. This provides the fake data from the configuration back to the middleware to pass on
@@ -67,10 +66,8 @@ public class FakeDataReportConnector extends ReportConnector {
     @Override
     public void runReport(Map<String, Object> extra) {
         rows = new ArrayList<Map<String, Object>>(data != null ? data : new ArrayList<Map<String, Object>>());
-        if (parameterConfig != null)
-        {
-            for (final ParamConfig paramConfig : parameterConfig)
-            {
+        if (parameterConfig != null) {
+            for (final ParamConfig paramConfig : parameterConfig) {
                 if (paramRules == null) continue;
                 final FakeReportConfig.ParamToColumnRule paramToColumnRule = paramRules.get(paramConfig.getName());
                 if (paramToColumnRule == null) continue;
@@ -86,16 +83,18 @@ public class FakeDataReportConnector extends ReportConnector {
                     e.printStackTrace();
                     continue;
                 }
-                switch (paramToColumnRule.getMapRule())
-                {
+                switch (paramToColumnRule.getMapRule()) {
                     case Exact:
-                        rows = (List<Map<String, Object>>) CollectionUtils.select(rows, new ExactEquals(paramToColumnRule, paramConfig));
+                        rows = (List<Map<String, Object>>)
+                                CollectionUtils.select(rows, new ExactEquals(paramToColumnRule, paramConfig));
                         break;
                     case SubString:
-                        rows = (List<Map<String, Object>>) CollectionUtils.select(rows, new SubstringOrExact(paramToColumnRule, paramConfig));
+                        rows = (List<Map<String, Object>>)
+                                CollectionUtils.select(rows, new SubstringOrExact(paramToColumnRule, paramConfig));
                         break;
                     case IntegerRange:
-                        rows = (List<Map<String, Object>>) CollectionUtils.select(rows, new IntegerRange(paramToColumnRule, paramConfig));
+                        rows = (List<Map<String, Object>>)
+                                CollectionUtils.select(rows, new IntegerRange(paramToColumnRule, paramConfig));
                         break;
                 }
             }
@@ -144,7 +143,9 @@ public class FakeDataReportConnector extends ReportConnector {
          */
         @Override
         public boolean evaluate(Object object) {
-            String column = ((Map<String, Object>)object).get(paramToColumnRule.getToColumn()).toString();
+            String column = ((Map<String, Object>) object)
+                    .get(paramToColumnRule.getToColumn())
+                    .toString();
             try {
                 return column.equals(BeanUtils.getProperty(paramConfig, "value"));
             } catch (IllegalAccessException e) {
@@ -174,7 +175,9 @@ public class FakeDataReportConnector extends ReportConnector {
          */
         @Override
         public boolean evaluate(Object object) {
-            String column = ((Map<String, Object>)object).get(paramToColumnRule.getToColumn()).toString();
+            String column = ((Map<String, Object>) object)
+                    .get(paramToColumnRule.getToColumn())
+                    .toString();
             if (paramConfig instanceof SingleParamConfig)
                 return column.contains(((SingleParamConfig) paramConfig).getValue());
             return super.evaluate(object);
@@ -201,28 +204,26 @@ public class FakeDataReportConnector extends ReportConnector {
         public boolean evaluate(Object object) {
             Pattern isRange = Pattern.compile("^(\\d+)-(\\d+)$");
             Pattern isOrMore = Pattern.compile("^(\\d+)\\+$");
-            String column = ((Map<String, Object>)object).get(paramToColumnRule.getToColumn()).toString();
+            String column = ((Map<String, Object>) object)
+                    .get(paramToColumnRule.getToColumn())
+                    .toString();
             if (paramConfig instanceof SingleParamConfig) {
                 String paramRange = ((SingleParamConfig) paramConfig).getValue();
-                try
-                {
+                try {
                     Matcher isRangeMatch = isRange.matcher(paramRange);
                     Matcher isOrMoreMatch = isOrMore.matcher(paramRange);
-                    if (isRangeMatch.find())
-                    {
+                    if (isRangeMatch.find()) {
                         int low = Integer.parseInt(isRangeMatch.group(1));
                         int high = Integer.parseInt(isRangeMatch.group(2));
                         int value = Integer.parseInt(column);
                         return low <= value && value <= high;
                     }
-                    if (isOrMoreMatch.find())
-                    {
+                    if (isOrMoreMatch.find()) {
                         int low = Integer.parseInt(isOrMoreMatch.group(1));
                         int value = Integer.parseInt(column);
                         return low <= value;
                     }
-                } catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }

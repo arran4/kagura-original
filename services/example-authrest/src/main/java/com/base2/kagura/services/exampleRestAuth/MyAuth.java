@@ -15,9 +15,9 @@
  */
 package com.base2.kagura.services.exampleRestAuth;
 
+import java.util.Map;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Map;
 
 public interface MyAuth {
 
@@ -37,5 +37,5 @@ public interface MyAuth {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String login(Map<String,String> input);
+    public String login(Map<String, String> input);
 }

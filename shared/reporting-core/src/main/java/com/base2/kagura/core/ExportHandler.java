@@ -1,18 +1,18 @@
 /*
-   Copyright 2014 base2Services
+  Copyright 2014 base2Services
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package com.base2.kagura.core;
 
 import com.base2.kagura.core.report.configmodel.parts.ColumnDef;
@@ -20,6 +20,13 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -33,14 +40,6 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Export Handler. This is a POJO to help you convert output from report-core into various output file formats.
@@ -59,45 +58,39 @@ public class ExportHandler implements Serializable {
         try {
             Document document = new Document();
             PdfWriter.getInstance(document, out);
-            if (columns == null)
-            {
+            if (columns == null) {
                 if (rows.size() > 0) return;
-                columns = new ArrayList<ColumnDef>(CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
-                    @Override
-                    public Object transform(final Object input) {
-                        return new ColumnDef()
-                        {{
-                                setName((String)input);
-                            }};
-                    }
-                }));
+                columns = new ArrayList<ColumnDef>(
+                        CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
+                            @Override
+                            public Object transform(final Object input) {
+                                return new ColumnDef() {
+                                    {
+                                        setName((String) input);
+                                    }
+                                };
+                            }
+                        }));
             }
-                if (columns.size() > 14)
-                    document.setPageSize(PageSize.A1);
-                else if (columns.size() > 10)
-                    document.setPageSize(PageSize.A2);
-                else if (columns.size() > 7)
-                    document.setPageSize(PageSize.A3);
-                else
-                    document.setPageSize(PageSize.A4);
+            if (columns.size() > 14) document.setPageSize(PageSize.A1);
+            else if (columns.size() > 10) document.setPageSize(PageSize.A2);
+            else if (columns.size() > 7) document.setPageSize(PageSize.A3);
+            else document.setPageSize(PageSize.A4);
             document.open();
             Font font = FontFactory.getFont(FontFactory.COURIER, 8, Font.NORMAL, BaseColor.BLACK);
             Font headerFont = FontFactory.getFont(FontFactory.COURIER, 8, Font.BOLD, BaseColor.BLACK);
 
             int size = columns.size();
             PdfPTable table = new PdfPTable(size);
-            for (ColumnDef column : columns)
-            {
+            for (ColumnDef column : columns) {
                 PdfPCell c1 = new PdfPCell(new Phrase(column.getName(), headerFont));
                 c1.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(c1);
             }
             table.setHeaderRows(1);
             if (rows != null)
-                for (Map<String, Object> row : rows)
-                {
-                    for (ColumnDef column : columns)
-                    {
+                for (Map<String, Object> row : rows) {
+                    for (ColumnDef column : columns) {
                         table.addCell(new Phrase(String.valueOf(row.get(column.getName())), font));
                     }
                 }
@@ -121,46 +114,46 @@ public class ExportHandler implements Serializable {
             // the header elements are used to map the bean values to each column (names must match)
             String[] header = new String[] {};
             CellProcessor[] processors = new CellProcessor[] {};
-            if (columns != null)
-            {
-                header = (String[])CollectionUtils.collect(columns, new Transformer() {
-                    @Override
-                    public Object transform(Object input) {
-                        ColumnDef column = (ColumnDef)input;
-                        return column.getName();
-                    }
-                }).toArray(new String[0]) ;
+            if (columns != null) {
+                header = (String[]) CollectionUtils.collect(columns, new Transformer() {
+                            @Override
+                            public Object transform(Object input) {
+                                ColumnDef column = (ColumnDef) input;
+                                return column.getName();
+                            }
+                        })
+                        .toArray(new String[0]);
                 processors = (CellProcessor[]) CollectionUtils.collect(columns, new Transformer() {
-                    @Override
-                    public Object transform(Object input) {
-                        return new Optional();
-                    }
-                }).toArray(new CellProcessor[0]);
-            } else if (rows.size() > 0)
-            {
+                            @Override
+                            public Object transform(Object input) {
+                                return new Optional();
+                            }
+                        })
+                        .toArray(new CellProcessor[0]);
+            } else if (rows.size() > 0) {
                 header = new ArrayList<String>(rows.get(0).keySet()).toArray(new String[0]);
-                processors = (CellProcessor[]) CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
-                    @Override
-                    public Object transform(Object input) {
-                        return new Optional();
-                    }
-                }).toArray(new CellProcessor[0]);
+                processors =
+                        (CellProcessor[]) CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
+                                    @Override
+                                    public Object transform(Object input) {
+                                        return new Optional();
+                                    }
+                                })
+                                .toArray(new CellProcessor[0]);
             }
-            if (header.length > 0)
-                csvWriter.writeHeader(header);
+            if (header.length > 0) csvWriter.writeHeader(header);
             if (rows != null)
-                for (Map<String, Object> row : rows)
-                {
+                for (Map<String, Object> row : rows) {
                     csvWriter.write(row, header, processors);
                 }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
         } finally {
-            if( csvWriter != null ) {
+            if (csvWriter != null) {
                 try {
                     csvWriter.close();
                 } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
                 }
             }
         }
@@ -174,7 +167,7 @@ public class ExportHandler implements Serializable {
      */
     public void generateXls(OutputStream out, List<Map<String, Object>> rows, List<ColumnDef> columns) {
         try {
-            Workbook wb = new HSSFWorkbook();  // or new XSSFWorkbook();
+            Workbook wb = new HSSFWorkbook(); // or new XSSFWorkbook();
             String safeName = WorkbookUtil.createSafeSheetName("Report"); // returns " O'Brien's sales   "
             Sheet reportSheet = wb.createSheet(safeName);
 
@@ -182,40 +175,36 @@ public class ExportHandler implements Serializable {
             Row nrow = reportSheet.createRow(rowc++);
             short cellc = 0;
             if (rows == null) return;
-            if (columns == null && rows.size() > 0)
-            {
-                columns = new ArrayList<ColumnDef>(CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
-                    @Override
-                    public Object transform(final Object input) {
-                        return new ColumnDef()
-                        {{
-                                setName((String)input);
-                            }};
-                    }
-                }));
+            if (columns == null && rows.size() > 0) {
+                columns = new ArrayList<ColumnDef>(
+                        CollectionUtils.collect(rows.get(0).keySet(), new Transformer() {
+                            @Override
+                            public Object transform(final Object input) {
+                                return new ColumnDef() {
+                                    {
+                                        setName((String) input);
+                                    }
+                                };
+                            }
+                        }));
             }
-            if (columns != null)
-            {
-                for (ColumnDef column : columns)
-                {
+            if (columns != null) {
+                for (ColumnDef column : columns) {
                     Cell cell = nrow.createCell(cellc++);
                     cell.setCellValue(column.getName());
                 }
             }
-            for (Map<String, Object> row : rows)
-            {
+            for (Map<String, Object> row : rows) {
                 nrow = reportSheet.createRow(rowc++);
                 cellc = 0;
-                for (ColumnDef column : columns)
-                {
+                for (ColumnDef column : columns) {
                     Cell cell = nrow.createCell(cellc++);
                     cell.setCellValue(String.valueOf(row.get(column.getName())));
                 }
             }
             wb.write(out);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
         }
-
     }
 }

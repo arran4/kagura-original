@@ -51,6 +51,106 @@
         </dependency>
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.osgi</groupId>
+                <artifactId>spring-osgi-core</artifactId>
+                <version>1.2.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.aop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.osgi</groupId>
+                <artifactId>spring-osgi-extender</artifactId>
+                <version>1.2.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.aop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.osgi</groupId>
+                <artifactId>spring-osgi-io</artifactId>
+                <version>1.2.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.aop</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>org.springframework.core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse</groupId>
+                <artifactId>osgi</artifactId>
+                <version>3.10.0-v20140606-1445</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
     <build>
         <resources>
             <resource>
@@ -77,6 +177,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.karaf</groupId>
                                     <artifactId>apache-karaf</artifactId>
+                                    <version>${karaf-tooling.version}</version>
                                     <type>tar.gz</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
@@ -94,6 +195,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.karaf</groupId>
                                     <artifactId>apache-karaf</artifactId>
+                                    <version>${karaf-tooling.version}</version>
                                     <type>zip</type>
                                     <outputDirectory>target/dependencies/windows</outputDirectory>
                                 </artifactItem>
@@ -139,25 +241,26 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
-                <version>${karaf.version}</version>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <version>${karaf-tooling.version}</version>
                 <executions>
                     <execution>
                         <id>add-features-to-repo</id>
                         <phase>generate-resources</phase>
                         <goals>
-                            <goal>add-features-to-repo</goal>
+                            <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
                             <descriptors>
-                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/standard/4.4.6/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/spring/4.4.6/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:com.kagurabi.services/kagura-features/${project.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
-                                <feature>cxf</feature>
-                                <feature>camel-spring</feature>
-                                <feature>kagura-camel</feature>
+
+
+                                <feature>kagura-features</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
@@ -192,8 +295,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <!-- Generate java doc files -->

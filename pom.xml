@@ -25,7 +25,7 @@
         <maven-resources-plugin.version>2.4.2</maven-resources-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.6</java.version>
+        <java.version>11</java.version>
         <slf4j.version>1.7.5</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <junit.version>4.8.2</junit.version>
@@ -35,9 +35,57 @@
         <commons-io.version>2.4</commons-io.version>
         <guava.version>14.0.1</guava.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
-        <groovy.version>2.1.2</groovy.version>
-        <maven-bundle-plugin.version>2.3.7</maven-bundle-plugin.version>
+        <groovy.version>3.0.19</groovy.version>
+        <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse</groupId>
+                <artifactId>osgi</artifactId>
+                <version>3.10.0-v20140606-1445</version>
+            </dependency>
+        </dependencies>
+
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>5.9.2</version>
+                <scope>test</scope>
+            </dependency>
+</dependencyManagement>
+
 
       <developers>
 	      <developer>
@@ -146,6 +194,26 @@
                     <releaseProfiles>release</releaseProfiles>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+
+
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat/>
+                    </java>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -166,7 +234,14 @@
                             <artifactId>cobertura-maven-plugin</artifactId>
                             <version>2.5.2</version>
                         </plugin>
-                    </plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+</plugins>
                 </pluginManagement>
             </build>
         </profile>
@@ -195,7 +270,14 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+</plugins>
             </build>
         </profile>
     </profiles>
