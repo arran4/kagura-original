@@ -23,26 +23,18 @@ on:
         type: choice
         options:
           - validate
-          - lint-fix
-          - build
           - release-snapshot
           - release
-          - monthly-maintenance
-      release_mode:
-        description: "Release mode"
-        required: false
-        default: "snapshot"
-        type: choice
-        options: [snapshot, release]
       increment:
         description: "Version increment type"
         required: false
-        default: "release"
+        default: "patch"
         type: choice
         options:
           - major
           - minor
           - patch
+          - none
           - release
           - test
 
@@ -56,6 +48,8 @@ permissions:
   checks: write
   packages: write
   security-events: write
+  pages: write
+  id-token: write
 
 jobs:
   route:
@@ -64,6 +58,7 @@ jobs:
     outputs:
       run_code_checks: ${{ steps.route.outputs.run_code_checks }}
       run_release: ${{ steps.route.outputs.run_release }}
+      run_pages: ${{ steps.route.outputs.run_pages }}
     steps:
       - id: route
         shell: bash
@@ -72,12 +67,17 @@ jobs:
 
           run_code_checks=false
           run_release=false
+          run_pages=false
 
           case "${{ github.event_name }}" in
             push)
               run_code_checks=true
               if [[ "${{ github.ref }}" == refs/tags/* ]]; then
                 run_release=true
+                run_pages=true
+              fi
+              if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
+                run_pages=true
               fi
               ;;
             pull_request)
@@ -90,6 +90,7 @@ jobs:
               ;;
             workflow_dispatch)
               run_code_checks=true
+              run_pages=true
               if [[ "${{ inputs.mode }}" == "release" || "${{ inputs.mode }}" == "release-snapshot" ]]; then
                 run_release=true
               fi
@@ -98,11 +99,41 @@ jobs:
 
           echo "run_code_checks=$run_code_checks" >> "$GITHUB_OUTPUT"
           echo "run_release=$run_release" >> "$GITHUB_OUTPUT"
+          echo "run_pages=$run_pages" >> "$GITHUB_OUTPUT"
+
+  discover:
+    name: Discover capabilities and cost profile
+    needs: route
+    runs-on: ubuntu-latest
+    outputs:
+      profile: ${{ steps.profile.outputs.profile }}
+      has_java: ${{ steps.detect.outputs.has_java }}
+      has_hugo: ${{ steps.detect.outputs.has_hugo }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -f pom.xml ]] && echo "has_java=true" >> "$GITHUB_OUTPUT" || echo "has_java=false" >> "$GITHUB_OUTPUT"
+          [[ -d site/mydocs ]] && echo "has_hugo=true" >> "$GITHUB_OUTPUT" || echo "has_hugo=false" >> "$GITHUB_OUTPUT"
+
+      - id: profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          # repo visibility is authoritative
+          if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+            echo "profile=private" >> "$GITHUB_OUTPUT"
+          else
+            echo "profile=public" >> "$GITHUB_OUTPUT"
+          fi
 
   java-build-test:
     name: Java Build & Test
-    needs: route
-    if: ${{ needs.route.outputs.run_code_checks == 'true' }}
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_java == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -120,8 +151,8 @@ jobs:
 
   release:
     name: Build & Release Artifacts
-    needs: [route, java-build-test]
-    if: ${{ always() && needs.route.outputs.run_release == 'true' && (needs.java-build-test.result == 'success' || needs.java-build-test.result == 'skipped') }}
+    needs: [route, discover, java-build-test]
+    if: ${{ always() && needs.discover.outputs.has_java == 'true' && needs.route.outputs.run_release == 'true' && (needs.java-build-test.result == 'success' || needs.java-build-test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -154,12 +185,12 @@ jobs:
               NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
             elif [ "$INCREMENT" == "patch" ]; then
               NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+            elif [ "$INCREMENT" == "none" ]; then
+              NEW_VERSION="$BASE_VERSION"
             elif [ "$INCREMENT" == "release" ]; then
               NEW_VERSION="$BASE_VERSION"
             elif [ "$INCREMENT" == "test" ]; then
               NEW_VERSION="$BASE_VERSION-test"
-            elif [ -n "$INCREMENT" ]; then
-              NEW_VERSION="$INCREMENT"
             else
               NEW_VERSION="$BASE_VERSION"
             fi
@@ -229,3 +260,57 @@ jobs:
           gh pr create --title "Prepare next development iteration $NEXT_VERSION" --body "Automated PR to bump version to $NEXT_VERSION for next development iteration." --base main --head "$NEW_BRANCH"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  hugo-build:
+    name: Build Hugo site
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_hugo == 'true' && needs.route.outputs.run_pages == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.123.7
+    steps:
+      - name: Install Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+      - name: Install Dart Sass
+        run: sudo snap install dart-sass
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Install Node.js dependencies
+        working-directory: ./site/mydocs
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+      - name: Build with Hugo
+        working-directory: ./site/mydocs
+        env:
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          hugo \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site/mydocs/public
+
+  hugo-deploy:
+    name: Deploy to GitHub Pages
+    needs: [route, discover, hugo-build]
+    if: ${{ needs.discover.outputs.has_hugo == 'true' && needs.route.outputs.run_pages == 'true' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
