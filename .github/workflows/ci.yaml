@@ -23,6 +23,7 @@ on:
         type: choice
         options:
           - validate
+          - release-snapshot
           - release
       increment:
         description: "Version increment type"
@@ -34,6 +35,8 @@ on:
           - minor
           - patch
           - none
+          - release
+          - test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -87,7 +90,8 @@ jobs:
               ;;
             workflow_dispatch)
               run_code_checks=true
-              if [[ "${{ inputs.mode }}" == "release" ]]; then
+              run_pages=true
+              if [[ "${{ inputs.mode }}" == "release" || "${{ inputs.mode }}" == "release-snapshot" ]]; then
                 run_release=true
               fi
               ;;
@@ -164,7 +168,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" == "release" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && ("${{ inputs.mode }}" == "release" || "${{ inputs.mode }}" == "release-snapshot") ]]; then
             # Extract current version from root POM
             CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
             BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
@@ -183,6 +187,10 @@ jobs:
               NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
             elif [ "$INCREMENT" == "none" ]; then
               NEW_VERSION="$BASE_VERSION"
+            elif [ "$INCREMENT" == "release" ]; then
+              NEW_VERSION="$BASE_VERSION"
+            elif [ "$INCREMENT" == "test" ]; then
+              NEW_VERSION="$BASE_VERSION-test"
             else
               NEW_VERSION="$BASE_VERSION"
             fi
@@ -231,7 +239,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare Next Version PR
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'release' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'release' || inputs.mode == 'release-snapshot') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -296,6 +304,9 @@ jobs:
     needs: [route, discover, hugo-build]
     if: ${{ needs.discover.outputs.has_hugo == 'true' && needs.route.outputs.run_pages == 'true' }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
