@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The base class for all ReportProviders. Allows a templated type, the "InternalType" type must be safe to pass
@@ -32,6 +34,8 @@ import java.util.List;
  *         Date: 15/10/13
  */
 public abstract class ReportsProvider<InternalType> {
+    private static final Logger LOG = LoggerFactory.getLogger(ReportsProvider.class);
+
     protected List<String> errors = new ArrayList<String>();
 
     /**
@@ -64,7 +68,7 @@ public abstract class ReportsProvider<InternalType> {
         try {
             reportConfig = mapper.readValue(report, ReportConfig.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error parsing {}", reportName, e);
             errors.add("Error parsing " + reportName + " " + e.getMessage());
             return false;
         }
@@ -105,8 +109,8 @@ public abstract class ReportsProvider<InternalType> {
             try {
                 name = loadReport(result, report);
             } catch (Exception e) {
+                LOG.error("Error in report {}", named, e);
                 errors.add("Error in report " + named + ": " + e.getMessage());
-                e.printStackTrace();
                 continue;
             }
         }
