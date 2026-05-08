@@ -163,6 +163,26 @@ public class JDBCDataReportConnectorTest {
     }
 
     @Test(expected = Exception.class)
+    public void testFreemarkerUnknownEngine() throws Exception {
+        JDBCReportConfig reportConfig = new JDBCReportConfig();
+        reportConfig.setSql("Test ${param.test} <@limit sql='oracle'/>");
+        reportConfig.setClassLoaderPath("org.h2.Driver");
+        reportConfig.setJdbc(JDBC);
+        reportConfig.setUsername("sa");
+        reportConfig.setPassword("");
+        reportConfig.setParamConfig(new ArrayList<ParamConfig>() {
+            {
+                SingleParamConfig stringParam = (SingleParamConfig) ParamConfig.String("test");
+                stringParam.setValue("ParameterOutput");
+                add(stringParam);
+            }
+        });
+        JDBCDataReportConnector jdbcDataReportConnector = new JDBCDataReportConnector(reportConfig);
+        FreemarkerSQLResult actual =
+                jdbcDataReportConnector.freemakerParams(new HashMap<String, Object>(), true, reportConfig.getSql());
+    }
+
+    @Test(expected = Exception.class)
     public void testFreemarkerRequiresLimit() throws Exception {
         JDBCReportConfig reportConfig = new JDBCReportConfig();
         reportConfig.setSql("Test ${param.test}");
