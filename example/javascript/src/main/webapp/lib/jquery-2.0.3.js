@@ -3284,7 +3284,7 @@ jQuery.support = (function( support ) {
 			// Support: Android 2.3
 			// Check if div with explicit width and no margin-right incorrectly
 			// gets computed margin-right based on width of container. (#3333)
-			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
+			// WebKit Workaround 13343 - getComputedStyle returns wrong value for margin-right
 			marginDiv = div.appendChild( document.createElement("div") );
 			marginDiv.style.cssText = div.style.cssText = divReset;
 			marginDiv.style.marginRight = marginDiv.style.width = "0";
@@ -6555,7 +6555,7 @@ jQuery(function() {
 			get: function( elem, computed ) {
 				if ( computed ) {
 					// Support: Android 2.3
-					// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
+					// WebKit Workaround 13343 - getComputedStyle returns wrong value for margin-right
 					// Work around by temporarily setting element display to inline-block
 					return jQuery.swap( elem, { "display": "inline-block" },
 						curCSS, [ elem, "marginRight" ] );
