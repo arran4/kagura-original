@@ -1,7 +1,6 @@
 package com.base2.example.war.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.base2.kagura.core.authentication.model.User;
@@ -31,8 +30,8 @@ public class AuthRestImplTest {
 
     @Test
     public void testAuthToken_whenUserIsNotNull_returnsOk() {
-        User mockUser = mock(User.class);
-        when(kaguraBean.getUser()).thenReturn(mockUser);
+        User user = new User();
+        when(kaguraBean.getUser()).thenReturn(user);
 
         String result = authRest.testAuthToken("dummyToken");
 
