@@ -46,10 +46,8 @@ public class ParameterUtils {
                         if (o != null && StringUtils.isNotBlank(o.toString()))
                             BeanUtils.setProperty(paramConfig, "value", o);
                         else BeanUtils.setProperty(paramConfig, "value", null);
-                    } catch (IllegalAccessException e) {
-                        LOG.error("Illegal access exception while setting parameter {}", paramConfig.getId(), e);
-                    } catch (InvocationTargetException e) {
-                        LOG.error("Invocation target exception while setting parameter {}", paramConfig.getId(), e);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        LOG.error("Could not set parameter: {}", paramConfig.getId(), e);
                     } catch (ConversionException e) {
                         LOG.error("Could not convert parameter: {} value {}", paramConfig.getId(), o, e);
                         errors.add("Could not convert parameter: " + paramConfig.getId() + " value " + o);
