@@ -69,7 +69,9 @@ public abstract class ReportConnector implements Serializable {
                             requiredParameters.add(paramConfig.getName());
                         }
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                        LOG.error("Failed to read parameter value", e);
+                        LOG.error("Failed to read parameter value for: {}", paramConfig.getName(), e);
+                        parametersRequired = true;
+                        requiredParameters.add(paramConfig.getName() + " (error reading value)");
                     }
                 }
             }
