@@ -59,12 +59,9 @@ public class JDBCDataReportConnector extends FreemarkerSQLDataReportConnector {
             getStartConnection();
             connection.close();
             connection = null;
-        } catch (SQLException e) {
+        } catch (SQLException | NamingException e) {
             errors.add(e.getMessage());
-            LOG.error("SQL Error preparing connection", e);
-        } catch (NamingException e) {
-            errors.add(e.getMessage());
-            LOG.error("Naming Error preparing connection", e);
+            LOG.error("Error preparing connection for JDBC URL: {}", reportConfig.getJdbc(), e);
         }
     }
 
