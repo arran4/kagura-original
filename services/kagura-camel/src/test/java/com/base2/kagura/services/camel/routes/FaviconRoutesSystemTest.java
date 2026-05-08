@@ -15,8 +15,9 @@
 */
 package com.base2.kagura.services.camel.routes;
 
+import static com.jayway.restassured.RestAssured.expect;
+
 import com.base2.kagura.services.camel.utils.TestUtils;
-import com.jayway.restassured.RestAssured;
 import java.io.IOException;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class FaviconRoutesSystemTest extends CamelSpringTestSupport {
 
     @Test
     public void faviconRewrite() throws IOException {
-        RestAssured.expect().contentType("image/x-icon").when().get("http://localhost:8432/favicon.ico");
+        expect().statusCode(200).contentType("image/x-icon").when().get("http://localhost:8432/favicon.ico");
     }
 
     @Override
