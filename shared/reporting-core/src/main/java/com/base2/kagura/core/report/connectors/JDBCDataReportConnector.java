@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JDBC database backend, used by FreemarkerSQLDataReportConnector.
@@ -29,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  * Time: 4:39 PM
  */
 public class JDBCDataReportConnector extends FreemarkerSQLDataReportConnector {
+    private static final Logger LOG = LoggerFactory.getLogger(JDBCDataReportConnector.class);
     private String jdbc;
     private Properties connectionProps;
 
@@ -45,7 +48,7 @@ public class JDBCDataReportConnector extends FreemarkerSQLDataReportConnector {
                     Class.forName(reportConfig.getClassLoaderPath());
                 } catch (ClassNotFoundException e) {
                     errors.add(e.getMessage());
-                    e.printStackTrace();
+                    LOG.error("Class not found: {}", reportConfig.getClassLoaderPath(), e);
                 }
             connectionProps = new Properties();
             if (StringUtils.isNotBlank(reportConfig.getUsername()))
@@ -56,12 +59,9 @@ public class JDBCDataReportConnector extends FreemarkerSQLDataReportConnector {
             getStartConnection();
             connection.close();
             connection = null;
-        } catch (SQLException e) {
+        } catch (SQLException | NamingException e) {
             errors.add(e.getMessage());
-            e.printStackTrace();
-        } catch (NamingException e) {
-            errors.add(e.getMessage());
-            e.printStackTrace();
+            LOG.error("Error preparing connection for JDBC URL: {}", reportConfig.getJdbc(), e);
         }
     }
 
