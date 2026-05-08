@@ -4645,7 +4645,7 @@ jQuery.event = {
 			handlers = ( data_priv.get( this, "events" ) || {} )[ event.type ] || [],
 			special = jQuery.event.special[ event.type ] || {};
 
-		// Use the fix-ed jQuery.Event rather than the (read-only) native event
+		// Use the fixed jQuery.Event rather than the (read-only) native event
 		args[0] = event;
 		event.delegateTarget = this;
 
