@@ -5,6 +5,7 @@ import com.base2.kagura.core.report.configmodel.parts.ColumnDef;
 import com.base2.kagura.core.report.parameterTypes.ParamConfig;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -13,6 +14,56 @@ import org.junit.Test;
  *         Date: 27/05/2014
  */
 public class GroovyDataReportConnectorTest {
+
+    @Test
+    public void testNormalGroovyScript() {
+        GroovyDataReportConnector connector = new GroovyDataReportConnector(new GroovyReportConfig() {
+            {
+                setColumns(new ArrayList<ColumnDef>());
+                setExtraOptions(new HashMap<String, String>());
+                setGroovy("def a = 1; def b = 2; a + b");
+                setParamConfig(new ArrayList<ParamConfig>());
+                setReportId("test-normal");
+            }
+        });
+        connector.run(new HashMap<String, Object>());
+        Assert.assertTrue(connector.getErrors().isEmpty());
+    }
+
+    @Test
+    public void testSecurityExploitBlockedRuntime() {
+        GroovyDataReportConnector connector = new GroovyDataReportConnector(new GroovyReportConfig() {
+            {
+                setColumns(new ArrayList<ColumnDef>());
+                setExtraOptions(new HashMap<String, String>());
+                setGroovy("Runtime.getRuntime().exec('id')");
+                setParamConfig(new ArrayList<ParamConfig>());
+                setReportId("test-exploit-runtime");
+            }
+        });
+        connector.run(new HashMap<String, Object>());
+        Assert.assertFalse(
+                "Should contain errors regarding restricted execution",
+                connector.getErrors().isEmpty());
+    }
+
+    @Test
+    public void testSecurityExploitBlockedExecute() {
+        GroovyDataReportConnector connector = new GroovyDataReportConnector(new GroovyReportConfig() {
+            {
+                setColumns(new ArrayList<ColumnDef>());
+                setExtraOptions(new HashMap<String, String>());
+                setGroovy("'id'.execute()");
+                setParamConfig(new ArrayList<ParamConfig>());
+                setReportId("test-exploit-execute");
+            }
+        });
+        connector.run(new HashMap<String, Object>());
+        Assert.assertFalse(
+                "Should contain errors regarding restricted execution",
+                connector.getErrors().isEmpty());
+    }
+
     @Test
     @Ignore("Tends to hang for too long")
     public void awsImportTest() {
