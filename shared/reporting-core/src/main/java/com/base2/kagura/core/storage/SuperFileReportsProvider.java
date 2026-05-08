@@ -21,6 +21,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Just like hte FileReportsProvider, however in this one, instead of having each report in it's own directory, it's in
@@ -30,6 +32,8 @@ import java.util.Collection;
  *         Date: 15/10/13
  */
 public class SuperFileReportsProvider extends ReportsProvider<File> {
+    private static final Logger LOG = LoggerFactory.getLogger(SuperFileReportsProvider.class);
+
     String superReportFile;
 
     /**
@@ -82,7 +86,7 @@ public class SuperFileReportsProvider extends ReportsProvider<File> {
         try {
             reportsConfig = mapper.readValue(new File(superReportFile), ReportsConfig.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error parsing super report {}", superReportFile, e);
             errors.add("Error parsing super report " + superReportFile);
         }
         return reportsConfig;
