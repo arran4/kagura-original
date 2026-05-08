@@ -21,9 +21,14 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codehaus.groovy.ast.expr.Expression;
+import org.codehaus.groovy.ast.expr.MethodCallExpression;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
 
 /**
  * Provides a groovy script based backend for reports. With this the script writer is required to manually construct
@@ -45,7 +50,35 @@ import java.util.Map;
 public class GroovyDataReportConnector extends ReportConnector {
     private List<Map<String, Object>> rows;
     private String groovyScript;
-    private static GroovyShell groovyShell = new GroovyShell();
+    private static final GroovyShell groovyShell;
+
+    static {
+        SecureASTCustomizer secure = new SecureASTCustomizer();
+        secure.setImportsBlacklist(Arrays.asList(
+                "java.lang.Runtime", "java.lang.ProcessBuilder", "java.lang.System", "java.lang.reflect.Method"));
+        secure.setStarImportsBlacklist(Arrays.asList("java.io.*", "java.net.*", "java.lang.reflect.*"));
+        secure.setIndirectImportCheckEnabled(true);
+        secure.setReceiversClassesBlackList(Arrays.asList(
+                Runtime.class, ProcessBuilder.class, System.class, Class.class, java.lang.reflect.Method.class));
+
+        secure.addExpressionCheckers(new SecureASTCustomizer.ExpressionChecker() {
+            @Override
+            public boolean isAuthorized(Expression expression) {
+                if (expression instanceof MethodCallExpression) {
+                    MethodCallExpression mc = (MethodCallExpression) expression;
+                    if (mc.getMethodAsString() != null && mc.getMethodAsString().equals("execute")) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+
+        CompilerConfiguration config = new CompilerConfiguration();
+        config.addCompilationCustomizers(secure);
+        groovyShell = new GroovyShell(config);
+    }
+
     /**
      * Constructor, shallow copies appropriate values.
      * @param reportConfig
