@@ -27,6 +27,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base representational object for a ReportConnector. A report connector is the core of a report, it takes a report
@@ -36,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
  * Time: 11:57 AM
  */
 public abstract class ReportConnector implements Serializable {
+    private static final Logger LOG = LoggerFactory.getLogger(ReportConnector.class);
     protected Integer page = 0;
     protected Integer pageLimit = 20;
     protected List<ColumnDef> columns;
@@ -65,12 +68,8 @@ public abstract class ReportConnector implements Serializable {
                             parametersRequired = true;
                             requiredParameters.add(paramConfig.getName());
                         }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
+                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                        LOG.error("Failed to read parameter value", e);
                     }
                 }
             }
