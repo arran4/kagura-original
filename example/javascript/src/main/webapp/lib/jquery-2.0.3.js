@@ -6237,7 +6237,7 @@ jQuery.extend({
 		"zoom": true
 	},
 
-	// Add in properties whose names you wish to correct before
+	// Add in properties whose names you wish to normalize before
 	// setting or getting the value
 	cssProps: {
 		// normalize float css property
