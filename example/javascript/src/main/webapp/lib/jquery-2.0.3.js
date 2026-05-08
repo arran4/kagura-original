@@ -4195,7 +4195,7 @@ jQuery.extend({
 		notxml = nType !== 1 || !jQuery.isXMLDoc( elem );
 
 		if ( notxml ) {
-			// Fix name and attach hooks
+			// Normalize name and lookup hooks
 			name = jQuery.propFix[ name ] || name;
 			hooks = jQuery.propHooks[ name ];
 		}
