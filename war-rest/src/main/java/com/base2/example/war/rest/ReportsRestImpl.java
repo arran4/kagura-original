@@ -159,33 +159,23 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
         ExportHandler exportHandler = new ExportHandler();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ReportConnector reportConnector = kaguraBean.getConnector(reportName);
-        try {
-            List<String> errors = new ArrayList<String>();
-            ParameterUtils.insertParameters(parameters, reportConnector, errors);
-            reportConnector.setPage(page);
-            if (allpages) {
-                reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
-                reportConnector.setPage(0);
-            } else if (pageLimit != null && pageLimit > 0)
-                reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
-            reportConnector.run(kaguraBean.generateExtraRunOptions());
-            List<ColumnDef> columns = reportConnector.getColumns();
-            List<Map<String, Object>> rows = reportConnector.getRows();
-            if (filetype.equalsIgnoreCase("pdf")) {
-                exportHandler.generatePdf(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("csv")) {
-                exportHandler.generateCsv(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("xls")) {
-                exportHandler.generateXls(out, rows, columns);
-            }
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException err) {
-                LOG.error("Error closing stream", err);
-            }
+        List<String> errors = new ArrayList<String>();
+        ParameterUtils.insertParameters(parameters, reportConnector, errors);
+        reportConnector.setPage(page);
+        if (allpages) {
+            reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
+            reportConnector.setPage(0);
+        } else if (pageLimit != null && pageLimit > 0)
+            reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
+        reportConnector.run(kaguraBean.generateExtraRunOptions());
+        List<ColumnDef> columns = reportConnector.getColumns();
+        List<Map<String, Object>> rows = reportConnector.getRows();
+        if (filetype.equalsIgnoreCase("pdf")) {
+            exportHandler.generatePdf(out, rows, columns);
+        } else if (filetype.equalsIgnoreCase("csv")) {
+            exportHandler.generateCsv(out, rows, columns);
+        } else if (filetype.equalsIgnoreCase("xls")) {
+            exportHandler.generateXls(out, rows, columns);
         }
         return new ByteArrayInputStream(out.toByteArray());
     }
