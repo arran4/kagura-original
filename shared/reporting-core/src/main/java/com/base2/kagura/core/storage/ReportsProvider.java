@@ -68,7 +68,7 @@ public abstract class ReportsProvider<InternalType> {
         try {
             reportConfig = mapper.readValue(report, ReportConfig.class);
         } catch (IOException e) {
-            LOG.error("Error parsing " + reportName, e);
+            LOG.error("Error parsing {}", reportName, e);
             errors.add("Error parsing " + reportName + " " + e.getMessage());
             return false;
         }
