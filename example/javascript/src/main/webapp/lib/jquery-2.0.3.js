@@ -2127,7 +2127,13 @@ Expr = Sizzle.selectors = {
 		},
 
 		"focus": function( elem ) {
-			return elem === document.activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
+			var activeElement;
+			if ( ( elem.type || elem.href || ~elem.tabIndex ) && ( !document.hasFocus || document.hasFocus() ) ) {
+				try {
+					activeElement = document.activeElement;
+				} catch ( e ) {}
+			}
+			return elem === activeElement;
 		},
 
 		// Boolean properties
@@ -7945,9 +7951,7 @@ function Animation( elem, properties, options ) {
 			}
 			var currentTime = fxNow || createFxNow(),
 				remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
-				// archaic crash bug won't allow us to use 1 - ( 0.5 || 0 ) (#12497)
-				temp = remaining / animation.duration || 0,
-				percent = 1 - temp,
+				percent = 1 - ( remaining / animation.duration || 0 ),
 				index = 0,
 				length = animation.tweens.length;
 

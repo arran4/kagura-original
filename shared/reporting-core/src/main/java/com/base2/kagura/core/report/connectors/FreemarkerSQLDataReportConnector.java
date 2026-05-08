@@ -33,6 +33,8 @@ import java.util.*;
 import javax.naming.NamingException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Does the freemarker pre-processing of sql (it requires a SQL Connection initialized via "#getStartConnection()".)
@@ -43,6 +45,7 @@ import org.apache.commons.lang3.StringUtils;
  * Time: 4:39 PM
  */
 public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
+    private static final Logger LOG = LoggerFactory.getLogger(FreemarkerSQLDataReportConnector.class);
     private final String freemarkerSql;
     private final String presql;
     private final String postsql;
@@ -123,7 +126,7 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
                 }
             } catch (SQLException e) {
                 errors.add(e.getMessage());
-                e.printStackTrace();
+                LOG.error("Error closing database connection or statements", e);
             }
         }
     }
@@ -205,10 +208,12 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
             temp.process(root, out);
         } catch (TemplateException e) {
             errors.add(e.getMessage());
-            e.printStackTrace();
+            LOG.error("Template execution error", e);
+            throw e;
         } catch (IOException e) {
             errors.add(e.getMessage());
-            e.printStackTrace();
+            LOG.error("IO error during template execution", e);
+            throw e;
         }
         if (requireLimit && !limitExists[0])
             throw new Exception("Could not find <@limit sql=mysql /> or <@limit sql=postgres /> tag on query.");
