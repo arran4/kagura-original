@@ -31,7 +31,7 @@ public class FaviconRoutesSystemTest extends CamelSpringTestSupport {
 
     @Test
     public void faviconRewrite() throws IOException {
-        expect().contentType("image/x-icon").when().get("http://localhost:8432/favicon.ico");
+        expect().statusCode(200).contentType("image/x-icon").when().get("http://localhost:8432/favicon.ico");
     }
 
     @Override
