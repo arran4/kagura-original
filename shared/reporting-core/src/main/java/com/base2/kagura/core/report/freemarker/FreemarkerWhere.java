@@ -73,7 +73,7 @@ public class FreemarkerWhere implements TemplateDirectiveModel {
             if (StringUtils.isNotBlank(typeScalar.getAsString()))
                 whereContext.setConnector(typeScalar.getAsString().toUpperCase());
         }
-        if (!Arrays.asList("AND", "OR").contains(whereContext.getConnector())) {
+        if (!("AND".equals(whereContext.getConnector()) || "OR".equals(whereContext.getConnector()))) {
             String message = "This directive only takes 'type' with a value of either 'AND' or 'OR'.";
             errors.add(message);
             throw new TemplateModelException(message);
