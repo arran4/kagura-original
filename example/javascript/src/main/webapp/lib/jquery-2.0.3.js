@@ -2128,10 +2128,12 @@ Expr = Sizzle.selectors = {
 
 		"focus": function( elem ) {
 			var activeElement;
-			try {
-				activeElement = document.activeElement;
-			} catch ( e ) {}
-			return elem === activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
+			if ( ( elem.type || elem.href || ~elem.tabIndex ) && ( !document.hasFocus || document.hasFocus() ) ) {
+				try {
+					activeElement = document.activeElement;
+				} catch ( e ) {}
+			}
+			return elem === activeElement;
 		},
 
 		// Boolean properties
