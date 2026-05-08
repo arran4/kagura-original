@@ -209,9 +209,11 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
         } catch (TemplateException e) {
             errors.add(e.getMessage());
             LOG.error("Template execution error", e);
+            throw e;
         } catch (IOException e) {
             errors.add(e.getMessage());
             LOG.error("IO error during template execution", e);
+            throw e;
         }
         if (requireLimit && !limitExists[0])
             throw new Exception("Could not find <@limit sql=mysql /> or <@limit sql=postgres /> tag on query.");
