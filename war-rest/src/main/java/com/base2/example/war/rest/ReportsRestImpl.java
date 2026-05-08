@@ -32,6 +32,8 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
@@ -40,6 +42,8 @@ import javax.ws.rs.*;
 @Path("/report/{authToken}/{reportName}")
 @RequestScoped
 public class ReportsRestImpl extends ReportsRest implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportsRestImpl.class);
 
     String reportName;
 
@@ -180,7 +184,7 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
                     out.close();
                 }
             } catch (IOException err) {
-                err.printStackTrace();
+                LOG.error("Error closing stream", err);
             }
         }
         return new ByteArrayInputStream(out.toByteArray());
