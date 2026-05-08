@@ -2127,7 +2127,13 @@ Expr = Sizzle.selectors = {
 		},
 
 		"focus": function( elem ) {
-			return elem === document.activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
+			var activeElement;
+			if ( ( elem.type || elem.href || ~elem.tabIndex ) && ( !document.hasFocus || document.hasFocus() ) ) {
+				try {
+					activeElement = document.activeElement;
+				} catch ( e ) {}
+			}
+			return elem === activeElement;
 		},
 
 		// Boolean properties
