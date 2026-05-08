@@ -32,6 +32,8 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
@@ -40,6 +42,8 @@ import javax.ws.rs.*;
 @Path("/report/{authToken}/{reportName}")
 @RequestScoped
 public class ReportsRestImpl extends ReportsRest implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportsRestImpl.class);
 
     String reportName;
 
@@ -155,33 +159,23 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
         ExportHandler exportHandler = new ExportHandler();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ReportConnector reportConnector = kaguraBean.getConnector(reportName);
-        try {
-            List<String> errors = new ArrayList<String>();
-            ParameterUtils.insertParameters(parameters, reportConnector, errors);
-            reportConnector.setPage(page);
-            if (allpages) {
-                reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
-                reportConnector.setPage(0);
-            } else if (pageLimit != null && pageLimit > 0)
-                reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
-            reportConnector.run(kaguraBean.generateExtraRunOptions());
-            List<ColumnDef> columns = reportConnector.getColumns();
-            List<Map<String, Object>> rows = reportConnector.getRows();
-            if (filetype.equalsIgnoreCase("pdf")) {
-                exportHandler.generatePdf(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("csv")) {
-                exportHandler.generateCsv(out, rows, columns);
-            } else if (filetype.equalsIgnoreCase("xls")) {
-                exportHandler.generateXls(out, rows, columns);
-            }
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException err) {
-                err.printStackTrace();
-            }
+        List<String> errors = new ArrayList<String>();
+        ParameterUtils.insertParameters(parameters, reportConnector, errors);
+        reportConnector.setPage(page);
+        if (allpages) {
+            reportConnector.setPageLimit(KaguraBean.EXPORT_PAGE_LIMIT);
+            reportConnector.setPage(0);
+        } else if (pageLimit != null && pageLimit > 0)
+            reportConnector.setPageLimit(Math.min(KaguraBean.EXPORT_PAGE_LIMIT, pageLimit));
+        reportConnector.run(kaguraBean.generateExtraRunOptions());
+        List<ColumnDef> columns = reportConnector.getColumns();
+        List<Map<String, Object>> rows = reportConnector.getRows();
+        if (filetype.equalsIgnoreCase("pdf")) {
+            exportHandler.generatePdf(out, rows, columns);
+        } else if (filetype.equalsIgnoreCase("csv")) {
+            exportHandler.generateCsv(out, rows, columns);
+        } else if (filetype.equalsIgnoreCase("xls")) {
+            exportHandler.generateXls(out, rows, columns);
         }
         return new ByteArrayInputStream(out.toByteArray());
     }
