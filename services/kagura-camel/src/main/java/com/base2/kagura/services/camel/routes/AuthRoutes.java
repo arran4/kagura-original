@@ -24,8 +24,19 @@ import org.apache.camel.model.dataformat.JsonLibrary;
  *         Date: 26/08/13
  */
 public class AuthRoutes extends RouteBuilder {
+
     @Override
     public void configure() throws Exception {
+        configureAuthInRoute();
+        configureGetAuthTokenRoute();
+        configureTestAuthTokenRoute();
+        configureLogoutRoute();
+        configureGetReportsRoute();
+        configureGetReportsDetailedRoute();
+        configureCleanAuthsRoute();
+    }
+
+    private void configureAuthInRoute() {
         from("cxfrs:bean:rsAuthServer?bindingStyle=SimpleConsumer")
                 .log("Executed ${header.operationName}")
                 .doTry()
@@ -37,13 +48,17 @@ public class AuthRoutes extends RouteBuilder {
                 .json(JsonLibrary.Jackson)
                 .end()
                 .routeId("cxfrsAuthInRouteId");
+    }
 
+    private void configureGetAuthTokenRoute() {
         from("direct:rs-getAuthToken")
                 .bean("authBean", "authenticate")
                 .marshal()
                 .json(JsonLibrary.Jackson)
                 .routeId("rsGetAuthRouteId");
+    }
 
+    private void configureTestAuthTokenRoute() {
         from("direct:rs-testAuthToken")
                 .doTry()
                 .bean("authBean", "isLoggedIn")
@@ -52,7 +67,9 @@ public class AuthRoutes extends RouteBuilder {
                 .setBody(constant("Not OK"))
                 .end()
                 .routeId("rsTestAuthTokenRouteId");
+    }
 
+    private void configureLogoutRoute() {
         from("direct:rs-logout")
                 .doTry()
                 .bean("authBean", "logout")
@@ -61,19 +78,25 @@ public class AuthRoutes extends RouteBuilder {
                 .setBody(constant("Not done"))
                 .end()
                 .routeId("rsLogoutRouteId");
+    }
 
+    private void configureGetReportsRoute() {
         from("direct:rs-getReports")
                 .bean("authBean", "getReports")
                 .marshal()
                 .json(JsonLibrary.Jackson)
                 .routeId("rsGetReportsRouteId");
+    }
 
+    private void configureGetReportsDetailedRoute() {
         from("direct:rs-getReportsDetailed")
                 .bean("authBean", "getReportsDetailed")
                 .marshal()
                 .json(JsonLibrary.Jackson)
                 .routeId("rsGetReportsDetailedRouteId");
+    }
 
+    private void configureCleanAuthsRoute() {
         from("timer:cleanAuths?period=600000")
                 .log("cleaning Auth routes")
                 .bean("authBean", "cleanAuthTickets")
