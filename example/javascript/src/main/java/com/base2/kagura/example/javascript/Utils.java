@@ -18,12 +18,16 @@ package com.base2.kagura.example.javascript;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
  *         Date: 3/09/13
  */
 public class Utils {
+    private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+
     public static String serverPath(HttpServletRequest request) {
         try {
             String contextPath = request.getContextPath() != null ? request.getContextPath() : "";
@@ -35,7 +39,7 @@ public class Utils {
                             (!contextPath.startsWith("/") ? "/" : "") + contextPath)
                     .toString();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOG.error("Failed to build server path URL", e);
             return "error";
         }
     }
