@@ -10,6 +10,9 @@
  * http://jquery.org/license
  *
  * Date: 2013-07-03T13:30Z
+ *
+ * Customizations:
+ * - Removed _data and _removeData methods as they were deprecated.
  */
 (function( window, undefined ) {
 
