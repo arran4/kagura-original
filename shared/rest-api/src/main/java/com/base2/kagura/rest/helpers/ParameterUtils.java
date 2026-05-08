@@ -27,12 +27,16 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.beanutils.converters.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
  *         Date: 17/01/2014
  */
 public class ParameterUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(ParameterUtils.class);
+
     public static void insertParameters(Parameters parameters, ReportConnector reportConnector, List<String> errors) {
         if (reportConnector.getParameterConfig() != null) {
             for (ParamConfig paramConfig : reportConnector.getParameterConfig()) {
@@ -43,11 +47,11 @@ public class ParameterUtils {
                             BeanUtils.setProperty(paramConfig, "value", o);
                         else BeanUtils.setProperty(paramConfig, "value", null);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        LOG.error("Illegal access exception while setting parameter {}", paramConfig.getId(), e);
                     } catch (InvocationTargetException e) {
-                        e.printStackTrace();
+                        LOG.error("Invocation target exception while setting parameter {}", paramConfig.getId(), e);
                     } catch (ConversionException e) {
-                        e.printStackTrace();
+                        LOG.error("Could not convert parameter: {} value {}", paramConfig.getId(), o, e);
                         errors.add("Could not convert parameter: " + paramConfig.getId() + " value " + o);
                     }
                 }
