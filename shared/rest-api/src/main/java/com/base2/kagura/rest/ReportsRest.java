@@ -29,10 +29,6 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("{authToken}/{reportId}")
 public class ReportsRest {
-    //    @PathParam("reportId")
-    //    private String reportId;
-    //    @PathParam("authToken")
-    //    private String authToken;
     /**
      *
      * @return returns report details
