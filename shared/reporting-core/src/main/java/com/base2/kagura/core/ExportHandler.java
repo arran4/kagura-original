@@ -40,6 +40,8 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Export Handler. This is a POJO to help you convert output from report-core into various output file formats.
@@ -48,6 +50,8 @@ import org.supercsv.prefs.CsvPreference;
  * Time: 1:49 PM
  */
 public class ExportHandler implements Serializable {
+    private static final Logger LOG = LoggerFactory.getLogger(ExportHandler.class);
+
     /**
      * Takes the output and transforms it into a PDF file.
      * @param out Output stream.
@@ -97,7 +101,7 @@ public class ExportHandler implements Serializable {
             document.add(table);
             document.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to generate PDF", e);
         }
     }
 
@@ -147,13 +151,13 @@ public class ExportHandler implements Serializable {
                     csvWriter.write(row, header, processors);
                 }
         } catch (IOException e) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            LOG.error("Failed to generate CSV", e);
         } finally {
             if (csvWriter != null) {
                 try {
                     csvWriter.close();
                 } catch (IOException e) {
-                    e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+                    LOG.error("Failed to close CSV writer", e);
                 }
             }
         }
@@ -204,7 +208,7 @@ public class ExportHandler implements Serializable {
             }
             wb.write(out);
         } catch (IOException e) {
-            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            LOG.error("Failed to generate XLS", e);
         }
     }
 }
