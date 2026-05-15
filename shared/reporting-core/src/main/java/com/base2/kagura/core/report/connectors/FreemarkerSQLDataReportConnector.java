@@ -66,6 +66,46 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
 
     protected Connection connection;
 
+    private PreparedStatement executePreSql(Map<String, Object> extra) throws Exception {
+        if (StringUtils.isNotBlank(presql)) {
+            FreemarkerSQLResult prefreemarkerSQLResult = freemakerParams(extra, false, presql);
+            PreparedStatement prestatement = connection.prepareStatement(prefreemarkerSQLResult.getSql());
+            for (int i = 0; i < prefreemarkerSQLResult.getParams().size(); i++) {
+                prestatement.setObject(i + 1, prefreemarkerSQLResult.getParams().get(i));
+            }
+            prestatement.setQueryTimeout(queryTimeout);
+            prestatement.execute();
+            return prestatement;
+        }
+        return null;
+    }
+
+    private PreparedStatement executeMainSql(Map<String, Object> extra) throws Exception {
+        FreemarkerSQLResult freemarkerSQLResult = freemakerParams(extra, true, freemarkerSql);
+        PreparedStatement statement = connection.prepareStatement(freemarkerSQLResult.getSql());
+        for (int i = 0; i < freemarkerSQLResult.getParams().size(); i++) {
+            statement.setObject(i + 1, freemarkerSQLResult.getParams().get(i));
+        }
+        statement.setQueryTimeout(queryTimeout);
+        rows = resultSetToMap(statement.executeQuery());
+        return statement;
+    }
+
+    private PreparedStatement executePostSql(Map<String, Object> extra) throws Exception {
+        if (StringUtils.isNotBlank(postsql)) {
+            FreemarkerSQLResult postfreemarkerSQLResult = freemakerParams(extra, false, postsql);
+            PreparedStatement poststatement = connection.prepareStatement(postfreemarkerSQLResult.getSql());
+            for (int i = 0; i < postfreemarkerSQLResult.getParams().size(); i++) {
+                poststatement.setObject(
+                        i + 1, postfreemarkerSQLResult.getParams().get(i));
+            }
+            poststatement.setQueryTimeout(queryTimeout);
+            poststatement.execute();
+            return poststatement;
+        }
+        return null;
+    }
+
     /**
      * Runs freemarker against the 3 sql queries, then executes them in order.
      * {@inheritDoc}
@@ -77,33 +117,9 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
         PreparedStatement statement = null;
         try {
             getStartConnection();
-            if (StringUtils.isNotBlank(presql)) {
-                FreemarkerSQLResult prefreemarkerSQLResult = freemakerParams(extra, false, presql);
-                prestatement = connection.prepareStatement(prefreemarkerSQLResult.getSql());
-                for (int i = 0; i < prefreemarkerSQLResult.getParams().size(); i++) {
-                    prestatement.setObject(
-                            i + 1, prefreemarkerSQLResult.getParams().get(i));
-                }
-                prestatement.setQueryTimeout(queryTimeout);
-                prestatement.execute();
-            }
-            FreemarkerSQLResult freemarkerSQLResult = freemakerParams(extra, true, freemarkerSql);
-            statement = connection.prepareStatement(freemarkerSQLResult.getSql());
-            for (int i = 0; i < freemarkerSQLResult.getParams().size(); i++) {
-                statement.setObject(i + 1, freemarkerSQLResult.getParams().get(i));
-            }
-            statement.setQueryTimeout(queryTimeout);
-            rows = resultSetToMap(statement.executeQuery());
-            if (StringUtils.isNotBlank(postsql)) {
-                FreemarkerSQLResult postfreemarkerSQLResult = freemakerParams(extra, false, postsql);
-                poststatement = connection.prepareStatement(postfreemarkerSQLResult.getSql());
-                for (int i = 0; i < postfreemarkerSQLResult.getParams().size(); i++) {
-                    poststatement.setObject(
-                            i + 1, postfreemarkerSQLResult.getParams().get(i));
-                }
-                poststatement.setQueryTimeout(queryTimeout);
-                poststatement.execute();
-            }
+            prestatement = executePreSql(extra);
+            statement = executeMainSql(extra);
+            poststatement = executePostSql(extra);
         } catch (Exception ex) {
             errors.add(ex.getMessage());
         } finally {
