@@ -88,12 +88,17 @@ public class ExportHandler implements Serializable {
                 table.addCell(c1);
             }
             table.setHeaderRows(1);
-            if (rows != null)
+            if (rows != null) {
+                List<String> columnNames = new ArrayList<String>(columns.size());
+                for (ColumnDef column : columns) {
+                    columnNames.add(column.getName());
+                }
                 for (Map<String, Object> row : rows) {
-                    for (ColumnDef column : columns) {
-                        table.addCell(new Phrase(String.valueOf(row.get(column.getName())), font));
+                    for (String columnName : columnNames) {
+                        table.addCell(new Phrase(String.valueOf(row.get(columnName)), font));
                     }
                 }
+            }
             document.add(table);
             document.close();
         } catch (Exception e) {
@@ -194,12 +199,18 @@ public class ExportHandler implements Serializable {
                     cell.setCellValue(column.getName());
                 }
             }
-            for (Map<String, Object> row : rows) {
-                nrow = reportSheet.createRow(rowc++);
-                cellc = 0;
+            if (columns != null) {
+                List<String> columnNames = new ArrayList<String>(columns.size());
                 for (ColumnDef column : columns) {
-                    Cell cell = nrow.createCell(cellc++);
-                    cell.setCellValue(String.valueOf(row.get(column.getName())));
+                    columnNames.add(column.getName());
+                }
+                for (Map<String, Object> row : rows) {
+                    nrow = reportSheet.createRow(rowc++);
+                    cellc = 0;
+                    for (String columnName : columnNames) {
+                        Cell cell = nrow.createCell(cellc++);
+                        cell.setCellValue(String.valueOf(row.get(columnName)));
+                    }
                 }
             }
             wb.write(out);
