@@ -66,67 +66,45 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
 
     protected Connection connection;
 
+    private void executeSql(String sql, Map<String, Object> extra, boolean requireLimit, boolean isQuery)
+            throws Exception {
+        if (!requireLimit && StringUtils.isBlank(sql)) return;
+        FreemarkerSQLResult result = freemakerParams(extra, requireLimit, sql);
+        try (PreparedStatement stmt = connection.prepareStatement(result.getSql())) {
+            for (int i = 0; i < result.getParams().size(); i++) {
+                stmt.setObject(i + 1, result.getParams().get(i));
+            }
+            stmt.setQueryTimeout(queryTimeout);
+            if (isQuery) {
+                rows = resultSetToMap(stmt.executeQuery());
+            } else {
+                stmt.execute();
+            }
+        }
+    }
+
     /**
      * Runs freemarker against the 3 sql queries, then executes them in order.
      * {@inheritDoc}
      */
     @Override
     public void runReport(Map<String, Object> extra) {
-        PreparedStatement prestatement = null;
-        PreparedStatement poststatement = null;
-        PreparedStatement statement = null;
         try {
             getStartConnection();
-            if (StringUtils.isNotBlank(presql)) {
-                FreemarkerSQLResult prefreemarkerSQLResult = freemakerParams(extra, false, presql);
-                prestatement = connection.prepareStatement(prefreemarkerSQLResult.getSql());
-                for (int i = 0; i < prefreemarkerSQLResult.getParams().size(); i++) {
-                    prestatement.setObject(
-                            i + 1, prefreemarkerSQLResult.getParams().get(i));
-                }
-                prestatement.setQueryTimeout(queryTimeout);
-                prestatement.execute();
-            }
-            FreemarkerSQLResult freemarkerSQLResult = freemakerParams(extra, true, freemarkerSql);
-            statement = connection.prepareStatement(freemarkerSQLResult.getSql());
-            for (int i = 0; i < freemarkerSQLResult.getParams().size(); i++) {
-                statement.setObject(i + 1, freemarkerSQLResult.getParams().get(i));
-            }
-            statement.setQueryTimeout(queryTimeout);
-            rows = resultSetToMap(statement.executeQuery());
-            if (StringUtils.isNotBlank(postsql)) {
-                FreemarkerSQLResult postfreemarkerSQLResult = freemakerParams(extra, false, postsql);
-                poststatement = connection.prepareStatement(postfreemarkerSQLResult.getSql());
-                for (int i = 0; i < postfreemarkerSQLResult.getParams().size(); i++) {
-                    poststatement.setObject(
-                            i + 1, postfreemarkerSQLResult.getParams().get(i));
-                }
-                poststatement.setQueryTimeout(queryTimeout);
-                poststatement.execute();
-            }
+            executeSql(presql, extra, false, false);
+            executeSql(freemarkerSql, extra, true, true);
+            executeSql(postsql, extra, false, false);
         } catch (Exception ex) {
             errors.add(ex.getMessage());
         } finally {
             try {
-                if (statement != null && !statement.isClosed()) {
-                    statement.close();
-                    statement = null;
-                }
-                if (prestatement != null && !prestatement.isClosed()) {
-                    prestatement.close();
-                    prestatement = null;
-                }
-                if (poststatement != null && !poststatement.isClosed()) {
-                    poststatement.close();
-                    poststatement = null;
-                }
                 if (connection != null && !connection.isClosed()) {
                     connection.close();
                     connection = null;
                 }
             } catch (SQLException e) {
                 errors.add(e.getMessage());
-                LOG.error("Error closing database connection or statements", e);
+                LOG.error("Error closing database connection", e);
             }
         }
     }
