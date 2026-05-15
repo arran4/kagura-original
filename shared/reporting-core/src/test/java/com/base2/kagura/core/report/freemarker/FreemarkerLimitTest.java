@@ -17,6 +17,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.IOException;
 import java.sql.SQLException;
+import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

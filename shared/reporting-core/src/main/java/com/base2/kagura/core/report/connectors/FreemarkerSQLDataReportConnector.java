@@ -21,6 +21,7 @@ import com.base2.kagura.core.report.freemarker.FreemarkerSQLResult;
 import com.base2.kagura.core.report.freemarker.FreemarkerWhere;
 import com.base2.kagura.core.report.freemarker.FreemarkerWhereClause;
 import com.base2.kagura.core.report.parameterTypes.ParamConfig;
+import freemarker.core.TemplateClassResolver;
 import freemarker.template.*;
 import java.io.IOException;
 import java.io.StringReader;
@@ -152,6 +153,7 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
         cfg.setObjectWrapper(new DefaultObjectWrapper());
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        cfg.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
 
         // Create the root hash
         Map root = new HashMap();
