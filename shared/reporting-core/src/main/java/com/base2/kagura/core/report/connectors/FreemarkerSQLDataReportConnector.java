@@ -21,6 +21,7 @@ import com.base2.kagura.core.report.freemarker.FreemarkerSQLResult;
 import com.base2.kagura.core.report.freemarker.FreemarkerWhere;
 import com.base2.kagura.core.report.freemarker.FreemarkerWhereClause;
 import com.base2.kagura.core.report.parameterTypes.ParamConfig;
+import freemarker.core.OptInTemplateClassResolver;
 import freemarker.core.TemplateClassResolver;
 import freemarker.template.*;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
     private final String postsql;
     private List<Map<String, Object>> rows;
     protected int queryTimeout;
+    private List<String> allowedClasses;
 
     /**
      * Constructor. Shallow copies arguments.
@@ -63,6 +65,7 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
         this.postsql = reportConfig.getPostsqlsql();
         this.presql = reportConfig.getPresqlsql();
         this.queryTimeout = reportConfig.getQueryTimeout();
+        this.allowedClasses = reportConfig.getAllowedClasses();
     }
 
     protected Connection connection;
@@ -153,7 +156,12 @@ public abstract class FreemarkerSQLDataReportConnector extends ReportConnector {
         cfg.setObjectWrapper(new DefaultObjectWrapper());
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        cfg.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
+        if (allowedClasses != null && !allowedClasses.isEmpty()) {
+            cfg.setNewBuiltinClassResolver(
+                    new OptInTemplateClassResolver(new HashSet<String>(allowedClasses), new ArrayList<String>()));
+        } else {
+            cfg.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
+        }
 
         // Create the root hash
         Map root = new HashMap();
