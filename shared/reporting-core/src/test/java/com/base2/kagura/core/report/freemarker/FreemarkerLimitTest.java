@@ -1,6 +1,8 @@
 package com.base2.kagura.core.report.freemarker;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import com.base2.kagura.core.report.configmodel.FreeMarkerSQLReportConfig;
@@ -11,21 +13,15 @@ import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
 import java.io.IOException;
 import java.sql.SQLException;
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import javax.naming.NamingException;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FreemarkerLimitTest {
 
@@ -35,7 +31,7 @@ public class FreemarkerLimitTest {
 
     @Before
     public void setUp() {
-        limitExists = new Boolean[]{false};
+        limitExists = new Boolean[] {false};
         errors = new ArrayList<>();
         // We can pass null for the connector since it's not used when an exception is thrown early.
         limitDirective = new FreemarkerLimit(limitExists, errors, null);
@@ -49,7 +45,7 @@ public class FreemarkerLimitTest {
         params.put("sql", new TemplateModel() {});
 
         try {
-            limitDirective.execute(null, params, new TemplateModel[]{}, null);
+            limitDirective.execute(null, params, new TemplateModel[] {}, null);
             fail("Should have thrown a TemplateModelException");
         } catch (TemplateModelException e) {
             assertThat(e.getMessage(), is("This directive only accepts string values for 'sql'."));
@@ -58,7 +54,7 @@ public class FreemarkerLimitTest {
         assertThat(errors.size(), is(1));
         assertThat(errors.get(0), is("This directive only accepts string values for 'sql'."));
     }
-  
+
     public static class MockFreeMarkerSQLReportConfig extends FreeMarkerSQLReportConfig {
         @Override
         public ReportConnector getReportConnector() {

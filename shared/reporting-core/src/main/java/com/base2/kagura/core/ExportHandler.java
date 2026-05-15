@@ -35,13 +35,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Export Handler. This is a POJO to help you convert output from report-core into various output file formats.
@@ -59,8 +59,8 @@ public class ExportHandler implements Serializable {
      * @param columns Columns to list on report
      */
     public void generatePdf(OutputStream out, List<Map<String, Object>> rows, List<ColumnDef> columns) {
+        Document document = new Document();
         try {
-            Document document = new Document();
             PdfWriter.getInstance(document, out);
             if (columns == null) {
                 if (rows.size() > 0) return;
@@ -99,9 +99,16 @@ public class ExportHandler implements Serializable {
                     }
                 }
             document.add(table);
-            document.close();
         } catch (Exception e) {
             LOG.error("Failed to generate PDF", e);
+        } finally {
+            try {
+                if (document.isOpen()) {
+                    document.close();
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to close PDF document", e);
+            }
         }
     }
 
