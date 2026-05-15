@@ -92,9 +92,10 @@ public class SuperFileReportsProvider extends ReportsProvider<File> {
         return reportsConfig;
     }
 
-    /** {@inheritDoc} -- Needs to be fixed. */
+    /** {@inheritDoc} */
     @Override
     protected String reportToName(File report) {
-        return null;
+        if (report == null) return null;
+        return report.getName();
     }
 }
