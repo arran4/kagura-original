@@ -23,24 +23,22 @@ public class MyAuthImpl implements MyAuth {
     }
 
     // Avoiding adding extra dependencies, so using hash map.
-    private static final List<Map<String, Object>> STATIC_USERS = new ArrayList<Map<String, Object>>() {
-        {
-            add(new HashMap<String, Object>() {
-                {
-                    put("username", "testUser1");
-                    put("groups", Arrays.asList("group1"));
-                    put("password", "thisMechWillChange");
-                }
-            });
-            add(new HashMap<String, Object>() {
-                {
-                    put("username", "testUser2");
-                    put("groups", Arrays.asList("group2"));
-                    put("password", "thisMechWillChange");
-                }
-            });
-        }
-    };
+    private static final List<Map<String, Object>> STATIC_USERS;
+
+    static {
+        List<Map<String, Object>> users = new ArrayList<>();
+        HashMap<String, Object> user1 = new HashMap<>();
+        user1.put("username", "testUser1");
+        user1.put("groups", Arrays.asList("group1"));
+        user1.put("password", "thisMechWillChange");
+        users.add(user1);
+        HashMap<String, Object> user2 = new HashMap<>();
+        user2.put("username", "testUser2");
+        user2.put("groups", Arrays.asList("group2"));
+        user2.put("password", "thisMechWillChange");
+        users.add(user2);
+        STATIC_USERS = Collections.unmodifiableList(users);
+    }
 
     public Object users() {
         return STATIC_USERS;
