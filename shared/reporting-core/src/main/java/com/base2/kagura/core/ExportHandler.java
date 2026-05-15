@@ -88,7 +88,7 @@ public class ExportHandler implements Serializable {
                 table.addCell(c1);
             }
             table.setHeaderRows(1);
-            if (rows != null) {
+            if (rows != null && rows.size() > 0) {
                 List<String> columnNames = new ArrayList<String>(columns.size());
                 for (ColumnDef column : columns) {
                     columnNames.add(column.getName());
@@ -199,7 +199,7 @@ public class ExportHandler implements Serializable {
                     cell.setCellValue(column.getName());
                 }
             }
-            if (columns != null) {
+            if (columns != null && rows.size() > 0) {
                 List<String> columnNames = new ArrayList<String>(columns.size());
                 for (ColumnDef column : columns) {
                     columnNames.add(column.getName());
