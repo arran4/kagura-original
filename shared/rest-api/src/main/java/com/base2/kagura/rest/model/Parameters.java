@@ -19,12 +19,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aubels
  *         Date: 4/09/13
  */
 public class Parameters {
+    private static final Logger LOG = LoggerFactory.getLogger(Parameters.class);
+
     Map<String, Object> parameters;
 
     public Parameters(String json) {
@@ -33,7 +37,7 @@ public class Parameters {
         try {
             parameters = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
         } catch (IOException exception) {
-            exception.printStackTrace();
+            LOG.error("Failed to parse JSON parameters", exception);
         }
     }
 
