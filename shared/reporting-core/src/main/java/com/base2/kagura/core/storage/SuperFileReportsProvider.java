@@ -95,7 +95,7 @@ public class SuperFileReportsProvider extends ReportsProvider<File> {
     /** {@inheritDoc} */
     @Override
     protected String reportToName(File report) {
-        if (report == null) return "<null>";
+        if (report == null) return null;
         return report.getName();
     }
 }
