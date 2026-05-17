@@ -15,6 +15,8 @@
 */
 package com.base2.kagura.core.report.configmodel;
 
+import java.util.List;
+
 /**
  * Freemaker component which provides the freemarker, markup on the SQL queries. This is vital for parameter insertion
  * and customizable queries. Can be used to overcome a couple of SQL limitations.
@@ -28,6 +30,7 @@ public abstract class FreeMarkerSQLReportConfig extends ReportConfig {
     protected String presqlsql;
     protected String postsqlsql;
     protected int queryTimeout = 10 * 60; // 10 minutes default query timeout.
+    protected List<String> allowedClasses;
 
     /**
      * The SQL that runs the query the report is expecting.
@@ -87,5 +90,20 @@ public abstract class FreeMarkerSQLReportConfig extends ReportConfig {
      */
     public void setQueryTimeout(int queryTimeout) {
         this.queryTimeout = queryTimeout;
+    }
+
+    /**
+     * Classes allowed to be instantiated via Freemarker's ?new built-in.
+     * @return
+     */
+    public List<String> getAllowedClasses() {
+        return allowedClasses;
+    }
+
+    /**
+     * @see #getAllowedClasses()
+     */
+    public void setAllowedClasses(List<String> allowedClasses) {
+        this.allowedClasses = allowedClasses;
     }
 }
