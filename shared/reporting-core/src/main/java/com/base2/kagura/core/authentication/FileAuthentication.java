@@ -51,11 +51,22 @@ public class FileAuthentication extends AuthenticationProvider {
         }
 
         boolean passwordMatches = false;
-        if (pass != null && matchUser.getPassword() != null) {
-            try {
-                passwordMatches = org.mindrot.jbcrypt.BCrypt.checkpw(pass, matchUser.getPassword());
-            } catch (IllegalArgumentException e) {
-                LOG.warn("Invalid BCrypt hash for user '{}'", user);
+        String storedPassword = matchUser.getPassword();
+
+        if (pass != null && storedPassword != null) {
+            if (storedPassword.startsWith("$2a$")
+                    || storedPassword.startsWith("$2b$")
+                    || storedPassword.startsWith("$2y$")) {
+                try {
+                    passwordMatches = org.mindrot.jbcrypt.BCrypt.checkpw(pass, storedPassword);
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Invalid BCrypt hash for user '{}'", user);
+                }
+            } else if (storedPassword.startsWith("{oid}")) {
+                LOG.warn("OID password management is not fully implemented yet for user '{}'", user);
+            } else {
+                // Fallback for legacy plaintext or other formats
+                passwordMatches = pass.equals(storedPassword);
             }
         }
 
