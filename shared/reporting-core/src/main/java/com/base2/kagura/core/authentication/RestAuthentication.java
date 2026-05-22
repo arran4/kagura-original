@@ -20,7 +20,6 @@ import com.base2.kagura.core.authentication.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,7 +43,7 @@ public class RestAuthentication extends AuthenticationProvider {
         return new URL(url + "/" + suffix).openStream();
     }
 
-    public InputStream httpPost(String suffix, HashMap<String, String> values) throws IOException {
+    public InputStream httpPost(String suffix, Map<String, String> values) throws IOException {
         URL obj = new URL(url + "/" + suffix);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -54,10 +53,10 @@ public class RestAuthentication extends AuthenticationProvider {
 
         con.setRequestProperty("Content-Type", "application/json");
         con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(data);
-        wr.flush();
-        wr.close();
+        try (java.io.OutputStream os = con.getOutputStream()) {
+            os.write(data.getBytes("UTF-8"));
+            os.flush();
+        }
 
         int responseCode = con.getResponseCode();
         if (responseCode != 200) throw new IOException("Got error code: " + responseCode);
@@ -94,10 +93,6 @@ public class RestAuthentication extends AuthenticationProvider {
             LOG.error("Error communicating to find: {}", urlSuffix, e);
             return null;
         }
-        if (selectedYaml == null) {
-            LOG.error("Can not find: {}", urlSuffix);
-            return null;
-        }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         List<Group> groups = null;
         try {
@@ -131,10 +126,6 @@ public class RestAuthentication extends AuthenticationProvider {
             selectedYaml = httpGet(urlSuffix);
         } catch (IOException e) {
             LOG.error("Error communicating to find: {}", urlSuffix, e);
-            return null;
-        }
-        if (selectedYaml == null) {
-            LOG.error("Can not find: {}", urlSuffix);
             return null;
         }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
