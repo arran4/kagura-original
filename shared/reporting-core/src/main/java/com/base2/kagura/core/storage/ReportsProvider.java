@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ReportsProvider<InternalType> {
     private static final Logger LOG = LoggerFactory.getLogger(ReportsProvider.class);
+    private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
     protected List<String> errors = new ArrayList<String>();
 
@@ -63,10 +64,9 @@ public abstract class ReportsProvider<InternalType> {
      * @return
      */
     protected boolean loadReport(ReportsConfig result, InputStream report, String reportName) {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         ReportConfig reportConfig = null;
         try {
-            reportConfig = mapper.readValue(report, ReportConfig.class);
+            reportConfig = YAML_MAPPER.readValue(report, ReportConfig.class);
         } catch (IOException e) {
             LOG.error("Error parsing {}", reportName, e);
             errors.add("Error parsing " + reportName + " " + e.getMessage());
