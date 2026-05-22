@@ -15,3 +15,4 @@ profile.xml
 *.releaseBackup
 release.properties
 output.txtsite/mydocs/themes/
+node_modules/
