@@ -37,20 +37,20 @@ import javax.ws.rs.*;
  * @author aubels
  *         Date: 26/08/13
  */
-@Path("/report/{authToken}/{reportName}")
+@Path("/report/{authToken}/{reportId}")
 @RequestScoped
 public class ReportsRestImpl extends ReportsRest implements Serializable {
 
-    String reportName;
+    String reportId;
 
-    @PathParam("reportName")
-    public String getReportName() {
-        return reportName;
+    @PathParam("reportId")
+    public String getReportId() {
+        return reportId;
     }
 
-    @PathParam("reportName")
-    public void setReportName(String reportName) {
-        this.reportName = reportName;
+    @PathParam("reportId")
+    public void setReportId(String reportId) {
+        this.reportId = reportId;
     }
 
     @PathParam("authToken")
@@ -69,8 +69,8 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
 
     @Override
     public ReportDetails reportDetails() {
-        if (!kaguraBean.userHasAccess(reportName)) return kaguraBean.noSuchReport(reportName, new ReportDetails());
-        return kaguraBean.getReportDetails(reportName, true, new ReportDetails());
+        if (!kaguraBean.userHasAccess(reportId)) return kaguraBean.noSuchReport(reportId, new ReportDetails());
+        return kaguraBean.getReportDetails(reportId, true, new ReportDetails());
     }
 
     @Override
@@ -78,8 +78,8 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
             throws AuthenticationException {
         ReportDetailsAndResults result = new ReportDetailsAndResults();
         if (kaguraBean.getUser() == null) throw new AuthenticationException();
-        if (!kaguraBean.userHasAccess(reportName)) return kaguraBean.noSuchReport(reportName, result);
-        ReportConnector reportConnector = kaguraBean.getConnector(reportName);
+        if (!kaguraBean.userHasAccess(reportId)) return kaguraBean.noSuchReport(reportId, result);
+        ReportConnector reportConnector = kaguraBean.getConnector(reportId);
         if (reportConnector == null) {
             result.setErrors(new ArrayList<String>() {
                 {
@@ -110,9 +110,9 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
     public ReportDetailsAndResults detailsAndRunReport(
             boolean allpages, Integer pageLimit, int page, Parameters parameters) throws AuthenticationException {
         if (kaguraBean.getUser() == null) throw new AuthenticationException("Authentication failure");
-        if (!kaguraBean.userHasAccess(reportName))
-            return kaguraBean.noSuchReport(reportName, new ReportDetailsAndResults());
-        ReportConfig reportConfig = kaguraBean.getReportConfig(reportName);
+        if (!kaguraBean.userHasAccess(reportId))
+            return kaguraBean.noSuchReport(reportId, new ReportDetailsAndResults());
+        ReportConfig reportConfig = kaguraBean.getReportConfig(reportId);
         ReportConnector reportConnector = reportConfig.getReportConnector();
         if (reportConnector == null) {
             return new ReportDetailsAndResults() {
@@ -151,10 +151,10 @@ public class ReportsRestImpl extends ReportsRest implements Serializable {
             boolean allpages, String filetype, Integer pageLimit, int page, Parameters parameters)
             throws AuthenticationException {
         if (kaguraBean.getUser() == null) throw new AuthenticationException("Authentication failure");
-        if (!kaguraBean.userHasAccess(reportName)) return null;
+        if (!kaguraBean.userHasAccess(reportId)) return null;
         ExportHandler exportHandler = new ExportHandler();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ReportConnector reportConnector = kaguraBean.getConnector(reportName);
+        ReportConnector reportConnector = kaguraBean.getConnector(reportId);
         try {
             List<String> errors = new ArrayList<String>();
             ParameterUtils.insertParameters(parameters, reportConnector, errors);
