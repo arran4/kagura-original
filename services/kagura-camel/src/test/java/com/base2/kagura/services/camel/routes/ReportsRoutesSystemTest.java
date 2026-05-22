@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ResponseBody;
 import java.util.*;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
-import org.apache.commons.codec.EncoderException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -145,7 +144,7 @@ public class ReportsRoutesSystemTest extends CamelSpringTestSupport {
     }
 
     @Test
-    public void reportExportCSVParamsTest() throws JsonProcessingException, EncoderException {
+    public void reportExportCSVParamsTest() throws JsonProcessingException {
         ResponseBody login = given().request()
                 .body("testuserpass")
                 .post("http://localhost:8432/auth/login/testuser")
@@ -159,7 +158,7 @@ public class ReportsRoutesSystemTest extends CamelSpringTestSupport {
     }
 
     @Test
-    public void reportExportPDFParamsTest() throws JsonProcessingException, EncoderException {
+    public void reportExportPDFParamsTest() throws JsonProcessingException {
         ResponseBody login = given().request()
                 .body("testuserpass")
                 .post("http://localhost:8432/auth/login/testuser")
@@ -174,7 +173,7 @@ public class ReportsRoutesSystemTest extends CamelSpringTestSupport {
     }
 
     @Test
-    public void reportExportXLSParamsTest() throws JsonProcessingException, EncoderException {
+    public void reportExportXLSParamsTest() throws JsonProcessingException {
         ResponseBody login = given().request()
                 .body("testuserpass")
                 .post("http://localhost:8432/auth/login/testuser")
@@ -187,14 +186,11 @@ public class ReportsRoutesSystemTest extends CamelSpringTestSupport {
         Assert.assertThat(bytes.length, equalTo(4096));
     }
 
-    private String buildParameters() throws JsonProcessingException, EncoderException {
-        //        List<Map<String, String>> values = new ArrayList<Map<String, String>>();
+    private String buildParameters() throws JsonProcessingException {
         Map<String, String> entry = new HashMap<String, String>();
         entry.put("An anonymous string", "asdf");
-        //        values.add(entry);
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally«
         String json = mapper.writeValueAsString(entry);
-        //        String url = new URLCodec().encode(json); // Rest assured seems to be doing the URI encoding.
         return json;
     }
 
