@@ -19,7 +19,6 @@ import freemarker.core.Environment;
 import freemarker.template.*;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +72,7 @@ public class FreemarkerWhere implements TemplateDirectiveModel {
             if (StringUtils.isNotBlank(typeScalar.getAsString()))
                 whereContext.setConnector(typeScalar.getAsString().toUpperCase());
         }
-        if (!Arrays.asList("AND", "OR").contains(whereContext.getConnector())) {
+        if (!("AND".equals(whereContext.getConnector()) || "OR".equals(whereContext.getConnector()))) {
             String message = "This directive only takes 'type' with a value of either 'AND' or 'OR'.";
             errors.add(message);
             throw new TemplateModelException(message);
