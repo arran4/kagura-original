@@ -49,7 +49,7 @@ public class FileAuthentication extends AuthenticationProvider {
             LOG.info("User '{}' does not exist.", user);
             throw new Exception("User was not logged in.");
         }
-        if (!matchUser.getPassword().equals(pass)) {
+        if (pass == null || !org.mindrot.jbcrypt.BCrypt.checkpw(pass, matchUser.getPassword())) {
             LOG.info("User '{}' bad password entered.", user);
             throw new Exception("User was not logged in.");
         }

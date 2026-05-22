@@ -64,12 +64,16 @@ public class AuthBeanTests {
                 contains(
                         allOf(
                                 hasProperty("username", equalTo("testuser")),
-                                hasProperty("password", equalTo("testuserpass")),
+                                hasProperty(
+                                        "password",
+                                        equalTo("$2a$10$qfWWTh7bldRVBAKFhshJ3OwpZO27eGh4ENxaBmUR1WLoUoXa.3RE6")),
                                 hasProperty("groups", hasSize(1)),
                                 hasProperty("groups", contains("test reports"))),
                         allOf(
                                 hasProperty("username", equalTo("tu2")),
-                                hasProperty("password", equalTo("tup2")),
+                                hasProperty(
+                                        "password",
+                                        equalTo("$2a$10$3nrJZP6wlpKTtpKvl6DNtuU/ab8bPrNBq7D0mnJG7Kb7BgKGKvbB6")),
                                 hasProperty("groups", hasSize(1)),
                                 hasProperty("groups", contains("test reports2")))));
     }

@@ -1,2 +1,2 @@
-- { username: "testuser", password: "testuserpass", groups: ["test reports"] }
-- { username: "tu2", password: "tup2", groups: ["test reports2"] }
+- { username: "testuser", password: "$2a$10$qfWWTh7bldRVBAKFhshJ3OwpZO27eGh4ENxaBmUR1WLoUoXa.3RE6", groups: ["test reports"] }
+- { username: "tu2", password: "$2a$10$3nrJZP6wlpKTtpKvl6DNtuU/ab8bPrNBq7D0mnJG7Kb7BgKGKvbB6", groups: ["test reports2"] }
