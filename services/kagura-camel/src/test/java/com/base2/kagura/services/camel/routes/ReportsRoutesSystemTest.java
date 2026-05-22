@@ -188,13 +188,10 @@ public class ReportsRoutesSystemTest extends CamelSpringTestSupport {
     }
 
     private String buildParameters() throws JsonProcessingException, EncoderException {
-        //        List<Map<String, String>> values = new ArrayList<Map<String, String>>();
         Map<String, String> entry = new HashMap<String, String>();
         entry.put("An anonymous string", "asdf");
-        //        values.add(entry);
         ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally«
         String json = mapper.writeValueAsString(entry);
-        //        String url = new URLCodec().encode(json); // Rest assured seems to be doing the URI encoding.
         return json;
     }
 
