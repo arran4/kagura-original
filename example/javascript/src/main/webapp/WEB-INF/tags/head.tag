@@ -4,15 +4,15 @@
 <meta name="description" content="" />
 <meta name="author" content="" />
 <!-- Le styles -->
-<link href="${pageContext.request.contextPath}/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
-<link href="${pageContext.request.contextPath}/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" />
 <link href="${pageContext.request.contextPath}/lib/kagura.css" rel="stylesheet" />
-<link href="${pageContext.request.contextPath}/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/2.0.1/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
 <!-- HTML5 shim, for IE8 support of HTML5 elements -->
 <!--[if lt IE 9]>
-<script src="${pageContext.request.contextPath}/lib/html5shiv.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <![endif]-->
-<script src="${pageContext.request.contextPath}/lib/spin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/1.3.3/spin.min.js"></script>
 <script language="JavaScript">
     var server_base = "<%= Utils.serverPath(request) %>";
 </script>
