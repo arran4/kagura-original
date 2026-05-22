@@ -20,7 +20,6 @@ import com.base2.kagura.core.authentication.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -40,38 +39,28 @@ public class RestAuthentication extends AuthenticationProvider {
 
     public RestAuthentication() {}
 
-    public InputStream httpGet(String suffix) {
-        try {
-            return new URL(url + "/" + suffix).openStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public InputStream httpGet(String suffix) throws IOException {
+        return new URL(url + "/" + suffix).openStream();
     }
 
-    public InputStream httpPost(String suffix, HashMap<String, String> values) {
-        try {
-            URL obj = new URL(url + "/" + suffix);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+    public InputStream httpPost(String suffix, Map<String, String> values) throws IOException {
+        URL obj = new URL(url + "/" + suffix);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            con.setRequestMethod("POST");
+        con.setRequestMethod("POST");
 
-            String data = new ObjectMapper().writeValueAsString(values);
+        String data = new ObjectMapper().writeValueAsString(values);
 
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setDoOutput(true);
-            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes(data);
-            wr.flush();
-            wr.close();
-
-            int responseCode = con.getResponseCode();
-            if (responseCode != 200) throw new Exception("Got error code: " + responseCode);
-            return con.getInputStream();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
+        try (java.io.OutputStream os = con.getOutputStream()) {
+            os.write(data.getBytes("UTF-8"));
+            os.flush();
         }
+
+        int responseCode = con.getResponseCode();
+        if (responseCode != 200) throw new IOException("Got error code: " + responseCode);
+        return con.getInputStream();
     }
 
     @Override
@@ -97,9 +86,11 @@ public class RestAuthentication extends AuthenticationProvider {
     @Override
     public List<Group> getGroups() {
         String urlSuffix = "groups";
-        InputStream selectedYaml = httpGet(urlSuffix);
-        if (selectedYaml == null) {
-            LOG.error("Can not find: {}", urlSuffix);
+        InputStream selectedYaml = null;
+        try {
+            selectedYaml = httpGet(urlSuffix);
+        } catch (IOException e) {
+            LOG.error("Error communicating to find: {}", urlSuffix, e);
             return null;
         }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -107,8 +98,7 @@ public class RestAuthentication extends AuthenticationProvider {
         try {
             groups = mapper.readValue(selectedYaml, new TypeReference<List<Group>>() {});
         } catch (IOException e) {
-            LOG.warn("Error parsing {}", urlSuffix);
-            e.printStackTrace();
+            LOG.warn("Error parsing {}", urlSuffix, e);
         }
         return groups;
     }
@@ -131,9 +121,11 @@ public class RestAuthentication extends AuthenticationProvider {
     @Override
     public List<User> getUsers() {
         String urlSuffix = "users";
-        InputStream selectedYaml = httpGet(urlSuffix);
-        if (selectedYaml == null) {
-            LOG.error("Can not find: {}", urlSuffix);
+        InputStream selectedYaml = null;
+        try {
+            selectedYaml = httpGet(urlSuffix);
+        } catch (IOException e) {
+            LOG.error("Error communicating to find: {}", urlSuffix, e);
             return null;
         }
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -141,8 +133,7 @@ public class RestAuthentication extends AuthenticationProvider {
         try {
             users = mapper.readValue(selectedYaml, new TypeReference<List<User>>() {});
         } catch (IOException e) {
-            LOG.warn("Error parsing {}", urlSuffix);
-            e.printStackTrace();
+            LOG.warn("Error parsing {}", urlSuffix, e);
         }
         return users;
     }
