@@ -177,6 +177,18 @@ jobs:
             MINOR=${PARTS[1]:-0}
             PATCH=${PARTS[2]:-0}
 
+            git fetch --tags || true
+
+            LATEST_TAG=$(git tag -l "v$MAJOR.$MINOR.*" | sort -V | tail -n 1)
+            if [ -n "$LATEST_TAG" ]; then
+              LATEST_VERSION=${LATEST_TAG#v}
+              IFS='.' read -r -a LATEST_PARTS <<< "$LATEST_VERSION"
+              TAG_PATCH=${LATEST_PARTS[2]:-0}
+              if [ "$TAG_PATCH" -ge "$PATCH" ]; then
+                PATCH=$TAG_PATCH
+              fi
+            fi
+
             INCREMENT="${{ inputs.increment }}"
 
             if [ "$INCREMENT" == "major" ]; then
